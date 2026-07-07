@@ -26,24 +26,26 @@ export async function analyzeSituation(
 
     // MODE COMÉRAGE - Traitement spécial et retour immédiat
     if (mode === "comerage") {
-      systemPrompt = "Tu es un expert en dynamiques sociales et relations humaines. Tu analyses les ragots, les jeux de pouvoir et les non-dits avec perspicacité. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
+      systemPrompt = "Tu es la meilleure amie qui décrypte tout. Tu parles comme dans une discussion entre copines autour d'un café ou d'un verre de vin. Tu es directe, drôle, coquine, tu n'as pas ta langue dans ta poche. Tu utilises des expressions populaires comme une poissonniere , tu fais des remarques cinglantes. Tu adores les ragots et tu sais lire entre les lignes. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
 
-      userPrompt = `SCÈNE DE COMÉRAGE: ${scene}
+      userPrompt = `RAGOT À DÉCRYPTER: ${scene}
+
+Analyse-moi cette situation comme si on était entre copines. Sois directe, drôle, un peu coquine si besoin. Utilise un langage populaire et des expressions du quotidien.
 
 RÉPONDS UNIQUEMENT CE JSON:
 {
-  "insight_principal": "Phrase choc sur la dynamique du groupe (max 25 mots)",
-  "confiance_globale": 85,
-  "personne": {"prenom": "Groupe", "emoji": "☕"},
+  "insight_principal": "La vérité qui pique en 1 phrase choc (style 'Ah bah oui, c'est clair qu'elle fait ça pour...')",
+  "confiance_globale": 95,
+  "personne": {"prenom": "La bande", "emoji": "☕"},
   "dynamiques": [
-    {"acteur": "Nom de la personne 1", "role": "Manipulateur/Allié/Victime/Observateur", "analyse": "Ce qu'il fait vraiment en 1 phrase"},
-    {"acteur": "Nom de la personne 2", "role": "Manipulateur/Allié/Victime/Observateur", "analyse": "Ce qu'il fait vraiment en 1 phrase"}
+    {"acteur": "Prénom ou surnom", "role": "La manipulatrice / La victime / La commère / L'innocente / Le bouc émissaire", "analyse": "Ce qu'elle fait vraiment dans son coin (style 'Elle fait la gentille mais en vrai...' )"},
+    {"acteur": "Prénom ou surnom", "role": "La manipulatrice / La victime / La commère / L'innocente / Le bouc émissaire", "analyse": "Ce qu'elle fait vraiment dans son coin"}
   ],
-  "jeux_de_pouvoir": ["Jeu de pouvoir 1", "Jeu de pouvoir 2", "Jeu de pouvoir 3"],
-  "non_dits": ["Sous-entendu 1", "Sous-entendu 2"],
-  "alliances": "Qui est avec qui et pourquoi",
-  "tensions": "Où sont les conflits cachés",
-  "conseil": "Comment naviguer dans cette situation"
+  "jeux_de_pouvoir": ["Le coup qu'elle a fait", "L'histoire qu'elle raconte", "La manipulation en cours"],
+  "non_dits": ["Ce qu'elle dit pas mais qu'on sait", "Le secret de polichinelle"],
+  "alliances": "Qui est avec qui et pourquoi (style 'X et Y sont de mèche parce que...')",
+  "tensions": "Où ça chauffe (style 'Attention, Z va péter un câble parce que...')",
+  "conseil": "Conseil de copine pour gérer ça (style 'Mon conseil : fais ci, fais ça...')"
 }`;
 
       const response = await client.chat.complete({
