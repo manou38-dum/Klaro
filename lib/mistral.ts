@@ -25,69 +25,67 @@ export async function analyzeSituation(
     let userPrompt = "";
 
     // MODE COMÉRAGE - Traitement spécial et retour immédiat
-    if (mode === "comerage") {
-      systemPrompt = "Tu es la meilleure amie qui décrypte tout. Tu parles comme dans une discussion entre copines autour d'un café ou d'un verre de vin. Tu es directe, drôle, coquine, tu n'as pas ta langue dans ta poche. Tu utilises des expressions populaires comme une poissonniere , tu fais des remarques cinglantes. Tu adores les ragots et tu sais lire entre les lignes. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
+   if (mode === "comerage") {
+  systemPrompt = "Tu es la meilleure amie qui décrypte tout. Tu parles comme dans une discussion entre copines. Tu es directe, drôle, un peu coquine. Tu utilises des expressions populaires. Ta réponse doit être UNIQUEMENT du JSON valide. Commence par { et finis par }. Aucun texte avant ou après.";
 
-      userPrompt = `RAGOT À DÉCRYPTER: ${scene}
+  userPrompt = `SCENE: ${scene}
 
-Analyse-moi cette situation comme si on était entre copines. Sois directe, drôle, un peu coquine si besoin. Utilise un langage populaire et des expressions du quotidien.
+Analyse comme entre copines. Sois directe et drôle.
 
-RÉPONDS UNIQUEMENT CE JSON:
+REPONDS UNIQUEMENT CE JSON:
 {
-  "insight_principal": "La vérité qui pique en 1 phrase choc (style 'Ah bah oui, c'est clair qu'elle fait ça pour...')",
+  "insight_principal": "Verite qui pique en 1 phrase",
   "confiance_globale": 95,
   "personne": {"prenom": "La bande", "emoji": "☕"},
   "dynamiques": [
-    {"acteur": "Prénom ou surnom", "role": "La manipulatrice / La victime / La commère / L'innocente / Le bouc émissaire", "analyse": "Ce qu'elle fait vraiment dans son coin (style 'Elle fait la gentille mais en vrai...' )"},
-    {"acteur": "Prénom ou surnom", "role": "La manipulatrice / La victime / La commère / L'innocente / Le bouc émissaire", "analyse": "Ce qu'elle fait vraiment dans son coin"}
+    {"acteur": "Personne1", "role": "Role", "analyse": "Ce qu elle fait vraiment"},
+    {"acteur": "Personne2", "role": "Role", "analyse": "Ce qu elle fait vraiment"}
   ],
-  "jeux_de_pouvoir": ["Le coup qu'elle a fait", "L'histoire qu'elle raconte", "La manipulation en cours"],
-  "non_dits": ["Ce qu'elle dit pas mais qu'on sait", "Le secret de polichinelle"],
-  "alliances": "Qui est avec qui et pourquoi (style 'X et Y sont de mèche parce que...')",
-  "tensions": "Où ça chauffe (style 'Attention, Z va péter un câble parce que...')",
-  "conseil": "Conseil de copine pour gérer ça (style 'Mon conseil : fais ci, fais ça...')"
+  "jeux_de_pouvoir": ["Manipulation 1", "Manipulation 2"],
+  "non_dits": ["Secret 1", "Secret 2"],
+  "alliances": "Qui est avec qui",
+  "tensions": "Ou ca chauffe",
+  "conseil": "Conseil de copine"
 }`;
 
-      const response = await client.chat.complete({
-        model: "mistral-large-latest",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: 0.7,
-        maxTokens: 3000
-      });
+  const response = await client.chat.complete({
+    model: "mistral-large-latest",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+    temperature: 0.8,
+    maxTokens: 3000
+  });
 
-      const rawContent = response.choices?.[0]?.message?.content;
+  const rawContent = response.choices?.[0]?.message?.content;
 
-      if (!rawContent) {
-        return { error: "Pas de réponse de l'IA" };
-      }
+  if (!rawContent) {
+    return { error: "Pas de réponse de l'IA" };
+  }
 
-      const content = typeof rawContent === 'string' 
-        ? rawContent 
-        : Array.isArray(rawContent) 
-          ? rawContent.join('') 
-          : String(rawContent);
+  const content = typeof rawContent === 'string' 
+    ? rawContent 
+    : Array.isArray(rawContent) 
+      ? rawContent.join('') 
+      : String(rawContent);
 
-      console.log("📩 Réponse Mistral (comérage):", content.substring(0, 300));
+  const startIndex = content.indexOf("{");
+  const endIndex = content.lastIndexOf("}");
 
-      const startIndex = content.indexOf("{");
-      const endIndex = content.lastIndexOf("}");
+  if (startIndex === -1 || endIndex === -1) {
+    return { error: "Pas de JSON dans la réponse" };
+  }
 
-      if (startIndex === -1 || endIndex === -1) {
-        return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
-      }
+  const jsonContent = content.substring(startIndex, endIndex + 1);
 
-      const jsonContent = content.substring(startIndex, endIndex + 1);
-
-      try {
-        const result = JSON.parse(jsonContent);
-        return { ...result, degree: 3, mode: "comerage" };
-      } catch (parseError) {
-        return { error: "JSON malformé", extractedPreview: jsonContent.substring(0, 200) };
-      }
-    }
+  try {
+    const result = JSON.parse(jsonContent);
+    return { ...result, degree: 3, mode: "comerage" };
+  } catch (parseError) {
+    return { error: "JSON malformé" };
+  }
+}
 
     // MODES NORMAUX (pro, familial, ami, social)
     if (degree === 1) {
