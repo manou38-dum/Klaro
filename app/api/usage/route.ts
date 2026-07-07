@@ -1,65 +1,64 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { analyzeSituation } from '@/lib/mistral';
+import { prisma } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs/server';
 
-export async function GET() {
+export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
-    
-    if (!userId) {
+    const body = await request.json();
+    const { scene, context, cardId, degree = 3 } = body;
+
+    const minLength = degree <= 2 ? 20 : 80;
+
+    if (!scene || scene.trim().length < minLength) {
       return NextResponse.json({
-        plan: "free",
-        used: 0,
-        limit: 100,
-        remaining: 100
-      });
+        error: `La scène est trop courte (${scene?.length || 0} caractères). Minimum: ${minLength}`,
+      }, { status: 400 });
     }
 
-    // Récupérer le profil utilisateur
-    let profile = await prisma.userProfile.findUnique({
-      where: { id: userId }
-    });
+    const mode = context || "pro";
 
-    // Si pas de profil, le créer
-    if (!profile) {
-      profile = await prisma.userProfile.create({
-        data: {
-          id: userId,
-          plan: "free"
+    // Récupérer les infos de la carte si cardId est fourni
+    let cardPrenom = body.prenom;
+    let cardEmoji = body.emoji;
+
+    if (cardId) {
+      try {
+        const card = await prisma.card.findUnique({
+          where: { id: cardId }
+        });
+        if (card) {
+          cardPrenom = card.prenom || cardPrenom;
+          cardEmoji = card.emoji || cardEmoji;
         }
-      });
-    }
-
-    // Compter les analyses du mois en cours
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const sceneCount = await prisma.scene.count({
-      where: {
-        userId,
-        createdAt: {
-          gte: startOfMonth
-        }
+      } catch (e) {
+        console.error("Erreur lecture carte:", e);
       }
+    }
+
+    console.log("📊 Analyse reçue:", { 
+      scene: scene?.substring(0, 50) + "...", 
+      context: mode, 
+      degree,
+      length: scene?.length 
     });
 
-    const limit = profile.plan === "premium" ? 999999 : 100;
-    const remaining = Math.max(0, limit - sceneCount);
+    console.log("🚀 Appel Mistral avec degree:", degree);
+    const result = await analyzeSituation(scene, mode, cardPrenom, cardEmoji, degree);
 
-    return NextResponse.json({
-      plan: profile.plan,
-      used: sceneCount,
-      limit,
-      remaining
-    });
+    if (result.error) {
+      console.error("❌ Erreur Mistral:", result.error);
+      return NextResponse.json({ error: result.error }, { status: 422 });
+    }
+
+    console.log("✅ Analyse réussie!");
+    return NextResponse.json({ ...result, degree });
+
   } catch (error) {
-    console.error("Erreur comptage usage:", error);
-    return NextResponse.json(
-      { error: "Erreur lors du comptage" },
-      { status: 500 }
-    );
+    console.error("💥 Erreur API analyze:", error);
+    return NextResponse.json({
+      error: "Erreur serveur: " + (error instanceof Error ? error.message : String(error)),
+    }, { status: 500 });
   }
 }
-
-

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
     const body = await request.json();
-    const { scene, context, cardId, degree = 3 } = body;
+    const { scene, context, cardId, degree = 100 } = body;
 
     const minLength = degree <= 2 ? 20 : 80;
 
