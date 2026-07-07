@@ -7,7 +7,7 @@ const MODE_CONFIG: Record<string, { label: string; bg: string; border: string; t
   familial: { label: "Familial", bg: "bg-rose-50", border: "border-rose-200", text: "text-rose-700" },
   ami: { label: "Amical", bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700" },
   pimente: { label: "Pimenté", bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" },
-  hardcore: { label: "Hardcore", bg: "bg-red-50", border: "border-red-200", text: "text-red-700" }
+  hardcore: { label: "Hardcore", bg: "bg-red-50", border: "border-red-200", text: "text-red-700" },
   comerage: { label: "Comérage", bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-700" },
 };
 

@@ -42,7 +42,7 @@ const CONTEXTS = [
     text: "text-amber-700",
     description: "Voisins, inconnus, administration, vacances",
     examples: "Ex: un voisin, un serveur, un agent..."
-  }
+  },
 
     {
     id: "comerage",
