@@ -50,7 +50,7 @@ export default function ResultCard({ result }: any) {
     );
   }
 
-  // SÉCURISATION TOTALE - Tous les tableaux sont sécurisés
+  // SÉCURISATION TOTALE - TOUS les tableaux sont sécurisés
   const traits = (result.traits && Array.isArray(result.traits)) ? result.traits : [];
   const zoneOmbre = (result.zone_ombre && Array.isArray(result.zone_ombre)) ? result.zone_ombre : [];
   const motsCles = (result.mots_cles && Array.isArray(result.mots_cles)) ? result.mots_cles : [];
