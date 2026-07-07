@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Sparkles, AlertTriangle, Zap, Brain, Flame, Eye, Lightbulb } from "lucide-react";
 
 interface UsageInfo {
@@ -98,7 +97,7 @@ export default function AddSceneForm({ mode, cardId }: { mode: string; cardId: s
         <div className={`rounded-xl p-3 border-2 ${getUsageColor()}`}>
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="font-semibold text-slate-700">
-              {usage.plan === "premium" ? "💎 Premium" : "🆓 Plan Gratuit"}
+              {usage.plan === "premium" ? "💎 Premium" : " Plan Gratuit"}
             </span>
             <span className="font-bold">
               {usage.plan === "premium" ? "Illimité ✓" : `${usage.used} / ${usage.limit} analyses ce mois`}
@@ -114,16 +113,7 @@ export default function AddSceneForm({ mode, cardId }: { mode: string; cardId: s
               />
             </div>
           )}
-          {usage.remaining === 0 && usage.plan === "free" && (
-            <div className="space-y-2">
-              <p className="text-sm text-rose-700 font-semibold flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" /> Limite atteinte !
-              </p>
-              <Link href="/pricing" className="block w-full py-2.5 px-4 bg-gradient-to-r from-violet-600 to-purple-600 text-white text-center font-bold rounded-lg hover:brightness-110 transition text-sm">
-                🚀 Passer à Premium (9,99€/mois)
-              </Link>
-            </div>
-          )}
+          {/* BLOCAGE SUPPRIMÉ POUR TESTS ILLIMITÉS */}
         </div>
       )}
 
