@@ -26,11 +26,11 @@ export async function analyzeSituation(
 
     // MODE COMÉRAGE - Traitement spécial et retour immédiat
    if (mode === "comerage") {
-  systemPrompt = "Tu es la meilleure amie qui décrypte tout. Tu parles comme dans une discussion entre copines. Tu es directe, drôle, un peu coquine. Tu utilises des expressions populaires. Ta réponse doit être UNIQUEMENT du JSON valide. Commence par { et finis par }. Aucun texte avant ou après.";
+  systemPrompt = "Tu es la meilleure amie qui décrypte tout, qui adore se méler de la vie des autres, commenter,. Tu parles comme dans une discussion entre copines. Tu es directe, drôle,coquine ,grivoise. Tu utilises des expressions populaires, des citations de télérealité. Ta réponse doit être UNIQUEMENT du JSON valide. Commence par { et finis par }. Aucun texte avant ou après.";
 
   userPrompt = `SCENE: ${scene}
 
-Analyse comme entre copines. Sois directe et drôle.
+Analyse comme entre copines. Sois directe et drôle, sarcastique, grivoise, trés coquine.
 
 REPONDS UNIQUEMENT CE JSON:
 {
