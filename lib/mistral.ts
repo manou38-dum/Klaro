@@ -20,13 +20,15 @@ export async function analyzeSituation(
     const emojiDefault = degree === 3 ? "🎭" : degree === 4 ? "🧠" : degree === 5 ? "💀" : "👤";
     const emojiSafe = emoji || emojiDefault;
 
+    // DÉCLARATION DES VARIABLES AVANT UTILISATION
     let systemPrompt = "";
+    let userPrompt = "";
 
-    // MODE COMÉRAGE - Prompt spécial
-if (mode === "comerage") {
-  systemPrompt = "Tu es un expert en dynamiques sociales et relations humaines. Tu analyses les ragots, les jeux de pouvoir et les non-dits avec perspicacité. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
+    // MODE COMÉRAGE - Traitement spécial et retour immédiat
+    if (mode === "comerage") {
+      systemPrompt = "Tu es un expert en dynamiques sociales et relations humaines. Tu analyses les ragots, les jeux de pouvoir et les non-dits avec perspicacité. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
 
-  userPrompt = `SCÈNE DE COMÉRAGE: ${scene}
+      userPrompt = `SCÈNE DE COMÉRAGE: ${scene}
 
 RÉPONDS UNIQUEMENT CE JSON:
 {
@@ -44,53 +46,48 @@ RÉPONDS UNIQUEMENT CE JSON:
   "conseil": "Comment naviguer dans cette situation"
 }`;
 
-  // Court-circuiter la logique de degree
-  const response = await client.chat.complete({
-    model: "mistral-large-latest",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.7,
-    maxTokens: 3000
-  });
+      const response = await client.chat.complete({
+        model: "mistral-large-latest",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.7,
+        maxTokens: 3000
+      });
 
-  const rawContent = response.choices?.[0]?.message?.content;
+      const rawContent = response.choices?.[0]?.message?.content;
 
-  if (!rawContent) {
-    return { error: "Pas de réponse de l'IA" };
-  }
+      if (!rawContent) {
+        return { error: "Pas de réponse de l'IA" };
+      }
 
-  const content = typeof rawContent === 'string' 
-    ? rawContent 
-    : Array.isArray(rawContent) 
-      ? rawContent.join('') 
-      : String(rawContent);
+      const content = typeof rawContent === 'string' 
+        ? rawContent 
+        : Array.isArray(rawContent) 
+          ? rawContent.join('') 
+          : String(rawContent);
 
-  console.log("📩 Réponse Mistral (comérage):", content.substring(0, 300));
+      console.log("📩 Réponse Mistral (comérage):", content.substring(0, 300));
 
-  const startIndex = content.indexOf("{");
-  const endIndex = content.lastIndexOf("}");
+      const startIndex = content.indexOf("{");
+      const endIndex = content.lastIndexOf("}");
 
-  if (startIndex === -1 || endIndex === -1) {
-    console.error("❌ Aucun JSON trouvé");
-    return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
-  }
+      if (startIndex === -1 || endIndex === -1) {
+        return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
+      }
 
-  const jsonContent = content.substring(startIndex, endIndex + 1);
+      const jsonContent = content.substring(startIndex, endIndex + 1);
 
-  try {
-    const result = JSON.parse(jsonContent);
-    return { ...result, degree: 3, mode: "comerage" };
-  } catch (parseError) {
-    console.error("❌ JSON invalide:", parseError);
-    return { 
-      error: "JSON malformé", 
-      extractedPreview: jsonContent.substring(0, 200) 
-    };
-  }
-}
-    
+      try {
+        const result = JSON.parse(jsonContent);
+        return { ...result, degree: 3, mode: "comerage" };
+      } catch (parseError) {
+        return { error: "JSON malformé", extractedPreview: jsonContent.substring(0, 200) };
+      }
+    }
+
+    // MODES NORMAUX (pro, familial, ami, social)
     if (degree === 1) {
       systemPrompt = "Tu es un expert en intuition comportementale ULTRA-CONCIS. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
     } else if (degree === 2) {
@@ -102,8 +99,6 @@ RÉPONDS UNIQUEMENT CE JSON:
     } else if (degree === 5) {
       systemPrompt = "Tu es un analyste cynique sans filtre. Tu révèles névroses et non-dits honteux avec lucidité cruelle. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
     }
-
-    let userPrompt = "";
 
     if (degree === 1) {
       userPrompt = `CONTEXTE: ${mode.toUpperCase()}
@@ -163,7 +158,6 @@ RÉPONDS UNIQUEMENT CE JSON (ton cynique):
       return { error: "Pas de réponse de l'IA" };
     }
 
-    // Convertir en string
     const content = typeof rawContent === 'string' 
       ? rawContent 
       : Array.isArray(rawContent) 
@@ -172,12 +166,10 @@ RÉPONDS UNIQUEMENT CE JSON (ton cynique):
 
     console.log("📩 Réponse Mistral:", content.substring(0, 300));
 
-    // EXTRACTION ROBUSTE DU JSON
     const startIndex = content.indexOf("{");
     const endIndex = content.lastIndexOf("}");
 
     if (startIndex === -1 || endIndex === -1) {
-      console.error("❌ Aucun JSON trouvé");
       return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
     }
 
@@ -187,11 +179,7 @@ RÉPONDS UNIQUEMENT CE JSON (ton cynique):
       const result = JSON.parse(jsonContent);
       return { ...result, degree };
     } catch (parseError) {
-      console.error("❌ JSON invalide:", parseError);
-      return { 
-        error: "JSON malformé", 
-        extractedPreview: jsonContent.substring(0, 200) 
-      };
+      return { error: "JSON malformé", extractedPreview: jsonContent.substring(0, 200) };
     }
 
   } catch (error) {
