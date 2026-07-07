@@ -21,6 +21,75 @@ export async function analyzeSituation(
     const emojiSafe = emoji || emojiDefault;
 
     let systemPrompt = "";
+
+    // MODE COMÉRAGE - Prompt spécial
+if (mode === "comerage") {
+  systemPrompt = "Tu es un expert en dynamiques sociales et relations humaines. Tu analyses les ragots, les jeux de pouvoir et les non-dits avec perspicacité. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
+
+  userPrompt = `SCÈNE DE COMÉRAGE: ${scene}
+
+RÉPONDS UNIQUEMENT CE JSON:
+{
+  "insight_principal": "Phrase choc sur la dynamique du groupe (max 25 mots)",
+  "confiance_globale": 85,
+  "personne": {"prenom": "Groupe", "emoji": "☕"},
+  "dynamiques": [
+    {"acteur": "Nom de la personne 1", "role": "Manipulateur/Allié/Victime/Observateur", "analyse": "Ce qu'il fait vraiment en 1 phrase"},
+    {"acteur": "Nom de la personne 2", "role": "Manipulateur/Allié/Victime/Observateur", "analyse": "Ce qu'il fait vraiment en 1 phrase"}
+  ],
+  "jeux_de_pouvoir": ["Jeu de pouvoir 1", "Jeu de pouvoir 2", "Jeu de pouvoir 3"],
+  "non_dits": ["Sous-entendu 1", "Sous-entendu 2"],
+  "alliances": "Qui est avec qui et pourquoi",
+  "tensions": "Où sont les conflits cachés",
+  "conseil": "Comment naviguer dans cette situation"
+}`;
+
+  // Court-circuiter la logique de degree
+  const response = await client.chat.complete({
+    model: "mistral-large-latest",
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt }
+    ],
+    temperature: 0.7,
+    maxTokens: 3000
+  });
+
+  const rawContent = response.choices?.[0]?.message?.content;
+
+  if (!rawContent) {
+    return { error: "Pas de réponse de l'IA" };
+  }
+
+  const content = typeof rawContent === 'string' 
+    ? rawContent 
+    : Array.isArray(rawContent) 
+      ? rawContent.join('') 
+      : String(rawContent);
+
+  console.log("📩 Réponse Mistral (comérage):", content.substring(0, 300));
+
+  const startIndex = content.indexOf("{");
+  const endIndex = content.lastIndexOf("}");
+
+  if (startIndex === -1 || endIndex === -1) {
+    console.error("❌ Aucun JSON trouvé");
+    return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
+  }
+
+  const jsonContent = content.substring(startIndex, endIndex + 1);
+
+  try {
+    const result = JSON.parse(jsonContent);
+    return { ...result, degree: 3, mode: "comerage" };
+  } catch (parseError) {
+    console.error("❌ JSON invalide:", parseError);
+    return { 
+      error: "JSON malformé", 
+      extractedPreview: jsonContent.substring(0, 200) 
+    };
+  }
+}
     
     if (degree === 1) {
       systemPrompt = "Tu es un expert en intuition comportementale ULTRA-CONCIS. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";

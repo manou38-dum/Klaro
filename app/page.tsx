@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Briefcase, Home, Users, Globe, Lock, Shield } from "lucide-react";
+import { Briefcase, Home, Users, Globe, Lock, Shield, MessageCircle } from "lucide-react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 const CONTEXTS = [
@@ -42,6 +42,17 @@ const CONTEXTS = [
     text: "text-amber-700",
     description: "Voisins, inconnus, administration, vacances",
     examples: "Ex: un voisin, un serveur, un agent..."
+  }
+
+    {
+    id: "comerage",
+    label: "Comérage",
+    icon: MessageCircle,
+    bg: "bg-pink-50",
+    border: "border-pink-200",
+    text: "text-pink-700",
+    description: "Ragots, dynamiques de groupe, jeux de pouvoir",
+    examples: "Ex: une soirée, un groupe d'amis, une réunion de famille..."
   }
 ];
 
