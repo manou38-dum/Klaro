@@ -2,65 +2,27 @@
 
 import { useState } from "react";
 import html2canvas from "html2canvas";
-import { AnalysisResult } from "@/lib/mistral";
 import { Share2, Download, X } from "lucide-react";
 
-interface ShareButtonProps {
-  result: AnalysisResult;
-}
-
-export default function ShareButton({ result }: ShareButtonProps) {
+export default function ShareButton({ result }: any) {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const generateImage = async () => {
+    const element = document.getElementById("result-card");
+    if (!element) return;
+
     setIsGenerating(true);
-    
     try {
-      // Créer un conteneur temporaire pour l'image
-      const container = document.createElement("div");
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.width = "600px";
-      container.style.background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)";
-      container.style.padding = "40px";
-      container.style.borderRadius = "24px";
-      container.style.color = "white";
-      document.body.appendChild(container);
-
-      // Contenu de l'image
-      container.innerHTML = `
-        <div style="text-align: center;">
-          <div style="font-size: 80px; margin-bottom: 20px;">${result.personne?.emoji || "🎭"}</div>
-          <h2 style="font-size: 32px; font-weight: 900; margin-bottom: 10px;">${result.personne?.prenom || "Inconnu"}</h2>
-          <p style="font-size: 18px; margin-bottom: 30px; opacity: 0.9;">${result.insight_principal}</p>
-          
-          <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
-            <p style="font-size: 14px; margin-bottom: 10px; opacity: 0.8;">Confiance</p>
-            <p style="font-size: 36px; font-weight: 900;">${result.confiance_globale}%</p>
-          </div>
-          
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-            <p style="font-size: 12px; opacity: 0.7;">Généré par Klaro • klaro.app</p>
-          </div>
-        </div>
-      `;
-
-      // Générer l'image
-      const canvas = await html2canvas(container, {
-        backgroundColor: null,
+      const canvas = await html2canvas(element, {
+        backgroundColor: "#f8fafc",
         scale: 2,
         useCORS: true,
       });
-
-      // Nettoyer
-      document.body.removeChild(container);
-
-      // Convertir en image
-      const dataUrl = canvas.toDataURL("image/png");
-      setImageUrl(dataUrl);
-      setShowModal(true);
+      const url = canvas.toDataURL("image/png");
+      setImageUrl(url);
+      setShowPreview(true);
     } catch (error) {
       console.error("Erreur génération image:", error);
       alert("Erreur lors de la génération de l'image");
@@ -71,11 +33,36 @@ export default function ShareButton({ result }: ShareButtonProps) {
 
   const downloadImage = () => {
     if (!imageUrl) return;
-    
     const link = document.createElement("a");
-    link.download = `klaro-${result.personne?.prenom || "analyse"}.png`;
     link.href = imageUrl;
+    link.download = `klaro-${result?.personne?.prenom || "analyse"}.png`;
     link.click();
+  };
+
+  const shareImage = async () => {
+    if (!imageUrl) return;
+
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `klaro-${result?.personne?.prenom || "analyse"}.png`, {
+        type: "image/png",
+      });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Mon analyse Klaro",
+          text: `Analyse de ${result?.personne?.prenom || "cette personne"}`,
+        });
+      } else {
+        downloadImage();
+        alert("Image téléchargée ! Partagez-la depuis votre galerie.");
+      }
+    } catch (error) {
+      console.error("Erreur partage:", error);
+      downloadImage();
+    }
   };
 
   return (
@@ -83,53 +70,51 @@ export default function ShareButton({ result }: ShareButtonProps) {
       <button
         onClick={generateImage}
         disabled={isGenerating}
-        className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white font-bold text-sm hover:brightness-110 transition flex items-center justify-center gap-2 disabled:opacity-50"
+        className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-sm transition flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
         {isGenerating ? (
           <>
-            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
             Génération...
           </>
         ) : (
           <>
-            <Share2 className="w-4 h-4" />
+            <Share2 className="w-5 h-5" />
             Partager
           </>
         )}
       </button>
 
-      {/* Modal de prévisualisation */}
-      {showModal && imageUrl && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      {showPreview && imageUrl && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full overflow-hidden">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-              <h3 className="font-bold text-slate-900">Partager l'analyse</h3>
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="font-bold text-slate-900">Aperçu</h3>
               <button
-                onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-slate-100 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
             <div className="p-4">
-              <img
-                src={imageUrl}
-                alt="Aperçu"
-                className="w-full rounded-xl mb-4"
-              />
-              
+              <img src={imageUrl} alt="Aperçu" className="w-full rounded-lg" />
+            </div>
+            <div className="p-4 border-t flex gap-3">
               <button
                 onClick={downloadImage}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold hover:brightness-110 transition flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition"
               >
-                <Download className="w-4 h-4" />
-                Télécharger l'image
+                <Download className="w-5 h-5" />
+                Télécharger
               </button>
-              
-              <p className="text-xs text-slate-500 text-center mt-3">
-                Partage sur WhatsApp, LinkedIn ou Instagram
-              </p>
+              <button
+                onClick={shareImage}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:brightness-110 transition"
+              >
+                <Share2 className="w-5 h-5" />
+                Partager
+              </button>
             </div>
           </div>
         </div>
