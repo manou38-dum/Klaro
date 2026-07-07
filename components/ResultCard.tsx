@@ -12,8 +12,6 @@ import {
   Home,
   Briefcase,
   Flame,
-  Shield,
-  Brain,
 } from "lucide-react";
 import ShareButton from "./ShareButton";
 import BigFiveGauge from "./BigFiveGauge";
@@ -24,13 +22,6 @@ const MODE_CONFIG: any = {
   ami: { icon: Users, label: "Amical", gradient: "from-emerald-500 to-teal-700", ring: "ring-emerald-300", accent: "text-emerald-600" },
   social: { icon: Briefcase, label: "Social", gradient: "from-amber-500 to-orange-700", ring: "ring-amber-300", accent: "text-amber-600" },
   hardcore: { icon: Flame, label: "Hardcore", gradient: "from-gray-900 to-black", ring: "ring-red-900", accent: "text-red-500" }
-};
-
-const toString = (value: any): string => {
-  if (!value) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
 };
 
 export default function ResultCard({ result }: any) {
@@ -53,21 +44,17 @@ export default function ResultCard({ result }: any) {
       <div className="max-w-md mx-auto text-center py-12">
         <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
         <h2 className="text-xl font-semibold mb-2">Analyse impossible</h2>
-        <p className="text-slate-600 mb-4">{toString(result.error)}</p>
+        <p className="text-slate-600 mb-4">{String(result.error)}</p>
         <a href="/" className="text-violet-600">Recommencer</a>
       </div>
     );
   }
 
-  // SÉCURISATION : tous les tableaux sont sécurisés
-  const traits = Array.isArray(result.traits) ? result.traits : [];
-  const zoneOmbre = Array.isArray(result.zone_ombre) ? result.zone_ombre : [];
-  const motsCles = Array.isArray(result.mots_cles) ? result.mots_cles : [];
-  const traitsSurface = Array.isArray(result.traits_surface) ? result.traits_surface : [];
-  const pointsCles = Array.isArray(result.points_cles) ? result.points_cles : [];
+  // SÉCURISATION TOTALE - Tous les tableaux sont sécurisés
+  const traits = (result.traits && Array.isArray(result.traits)) ? result.traits : [];
+  const zoneOmbre = (result.zone_ombre && Array.isArray(result.zone_ombre)) ? result.zone_ombre : [];
+  const motsCles = (result.mots_cles && Array.isArray(result.mots_cles)) ? result.mots_cles : [];
   const rapports = result.rapports || { autorite: "", pairs: "", action: "" };
-  const vigilances = result.vigilances_dsm5 || null;
-  const emotions = result.analyse_emotionnelle_tcherkassoff || null;
   const degree = result.degree || 3;
 
   const modeConfig = MODE_CONFIG[mode] || MODE_CONFIG.pro;
@@ -81,19 +68,19 @@ export default function ResultCard({ result }: any) {
           <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
             <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
             <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "Inconnu"}</h2>
-            <p className="text-lg">{toString(result.insight_principal)}</p>
+            <p className="text-lg">{String(result.insight_principal)}</p>
           </div>
           
           <div className="p-6 space-y-4 bg-slate-50">
             {motsCles.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {motsCles.map((mot: string, i: number) => (
-                  <span key={i} className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">#{toString(mot)}</span>
+                {motsCles.map((mot: any, i: number) => (
+                  <span key={i} className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">#{String(mot)}</span>
                 ))}
               </div>
             )}
-            {result.ressenti_global && <p className="italic text-slate-600">{toString(result.ressenti_global)}</p>}
-            {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {toString(result.conseil_rapide)}</p>}
+            {result.ressenti_global && <p className="italic text-slate-600">{String(result.ressenti_global)}</p>}
+            {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {String(result.conseil_rapide)}</p>}
           </div>
 
           <div className="flex gap-3 p-6">
@@ -112,7 +99,7 @@ export default function ResultCard({ result }: any) {
         <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
           <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
           <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "Inconnu"}</h2>
-          <p className="text-lg">{toString(result.insight_principal)}</p>
+          <p className="text-lg">{String(result.insight_principal)}</p>
           <p className="text-sm mt-2">{result.confiance_globale}% confiance</p>
         </div>
 
@@ -121,11 +108,11 @@ export default function ResultCard({ result }: any) {
           {traits.length > 0 && traits.map((trait: any, i: number) => (
             <div key={i} className="rounded-xl p-4 bg-white border-2 border-slate-200">
               <div className="flex justify-between items-start mb-2">
-                <h4 className="font-bold text-slate-900">{toString(trait.trait) || "Trait"}</h4>
-                <span className="text-xs px-2 py-1 bg-slate-100 rounded">{toString(trait.score_label || "Moyen")}</span>
+                <h4 className="font-bold text-slate-900">{String(trait.trait) || "Trait"}</h4>
+                <span className="text-xs px-2 py-1 bg-slate-100 rounded">{String(trait.score_label) || "Moyen"}</span>
               </div>
               {trait.score_polarise !== undefined && <BigFiveGauge score={trait.score_polarise} dimension={trait.bigfive_dimension || "N"} />}
-              <p className="text-sm text-slate-600 mt-2 italic">{toString(trait.analyse)}</p>
+              <p className="text-sm text-slate-600 mt-2 italic">{String(trait.analyse)}</p>
             </div>
           ))}
         </div>
@@ -139,7 +126,7 @@ export default function ResultCard({ result }: any) {
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <p className="text-sm text-slate-700">
-              {activeTab === "autorite" ? toString(rapports.autorite) : activeTab === "pairs" ? toString(rapports.pairs) : toString(rapports.action)}
+              {activeTab === "autorite" ? String(rapports.autorite) : activeTab === "pairs" ? String(rapports.pairs) : String(rapports.action)}
             </p>
           </div>
         </div>
@@ -150,7 +137,7 @@ export default function ResultCard({ result }: any) {
               <Lightbulb className="w-6 h-6" />
               <div>
                 <p className="text-xs uppercase opacity-80 mb-1">Conseil</p>
-                <p className="text-base">{toString(result.conseil)}</p>
+                <p className="text-base">{String(result.conseil)}</p>
               </div>
             </div>
           </div>
@@ -161,8 +148,8 @@ export default function ResultCard({ result }: any) {
             <summary className="p-4 text-sm font-bold cursor-pointer text-slate-600">⚠️ Zone d'ombre</summary>
             <div className="px-4 pb-4">
               <ul className="space-y-2">
-                {zoneOmbre.map((item: string, i: number) => (
-                  <li key={i} className="text-sm text-slate-600">• {toString(item)}</li>
+                {zoneOmbre.map((item: any, i: number) => (
+                  <li key={i} className="text-sm text-slate-600">• {String(item)}</li>
                 ))}
               </ul>
             </div>

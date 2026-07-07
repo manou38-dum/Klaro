@@ -10,8 +10,8 @@ export async function GET() {
       return NextResponse.json({
         plan: "free",
         used: 0,
-        limit: 3,
-        remaining: 3
+        limit: 100,
+        remaining: 100
       });
     }
 
@@ -44,7 +44,7 @@ export async function GET() {
       }
     });
 
-    const limit = profile.plan === "premium" ? 999999 : 3;
+    const limit = profile.plan === "premium" ? 999999 : 100;
     const remaining = Math.max(0, limit - sceneCount);
 
     return NextResponse.json({
