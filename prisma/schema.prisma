@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scene {
+  id        String   @id @default(uuid())
+  userId    String?
+  cardId    String
+  sceneText String   @db.Text
+  result    Json     @db.JsonB
+  createdAt DateTime @default(now())
+
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  mode        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     TeamMember[]
+  analyses    TeamAnalysis[]
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  cardId    String
+  role      String?
+  createdAt DateTime @default(now())
+  
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, cardId])
+}
+
+model TeamAnalysis {
+  id          String   @id @default(uuid())
+  teamId      String
+  scenario    String   @db.Text
+  result      Json     @db.JsonB
+  createdAt   DateTime @default(now())
+  
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model UserProfile {
+  id        String   @id
+  plan      String   @default("free")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id          String   @id @default(uuid())
+  userId      String?
+  mode        String
+  prenom      String
+  emoji       String
+  relation    String?  // 👈 AJOUTE CETTE LIGNE
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  scenes      Scene[]
+  teamMembers TeamMember[]
+}
