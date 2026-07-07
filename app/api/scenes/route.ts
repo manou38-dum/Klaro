@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
           }
         });
 
-        if (sceneCount >= 3) {
+        if (sceneCount >= 100) {
           return NextResponse.json(
             { 
               error: "Limite atteinte",
