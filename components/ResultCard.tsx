@@ -288,3 +288,5 @@ export default function ResultCard({ result }: any) {
 
 
 
+
+
