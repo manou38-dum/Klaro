@@ -62,7 +62,7 @@ export default function ResultCard({ result }: any) {
     const nonDits = Array.isArray(result.non_dits) ? result.non_dits : [];
 
     return (
-      <div className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
+   <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
         <div className="rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ring-pink-300">
           {/* Header Fun */}
           <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-6 text-white text-center">
@@ -162,7 +162,7 @@ export default function ResultCard({ result }: any) {
   // Affichage simplifié niveaux 1-2
   if (degree <= 2 && traits.length === 0) {
     return (
-      <div className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
+   <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
         <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${modeConfig.ring}`}>
           <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
             <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
@@ -193,7 +193,7 @@ export default function ResultCard({ result }: any) {
 
   // Affichage standard niveaux 3-5
   return (
-    <div className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
+ <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
       <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${modeConfig.ring}`}>
         <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
           <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
