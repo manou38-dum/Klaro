@@ -25,65 +25,52 @@ export async function analyzeSituation(
     let userPrompt = "";
 
     // MODE COMÉRAGE - Traitement spécial et retour immédiat
-   if (mode === "comerage") {
-  systemPrompt = "Tu es la meilleure amie qui décrypte tout, qui adore se méler de la vie des autres, commenter,. Tu parles comme dans une discussion entre copines. Tu es directe, drôle,coquine ,grivoise. Tu utilises des expressions populaires, des citations de télérealité. Ta réponse doit être UNIQUEMENT du JSON valide. Commence par { et finis par }. Aucun texte avant ou après.";
+  if (mode === "comerage") {
+  systemPrompt = "Tu es une copine qui analyse les ragots. Tu es directe et drôle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
 
-  userPrompt = `SCENE: ${scene}
+  userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
 
-Analyse comme entre copines. Sois directe et drôle, sarcastique, grivoise, trés coquine.
-
-REPONDS UNIQUEMENT CE JSON:
-{
-  "insight_principal": "Verite qui pique en 1 phrase",
-  "confiance_globale": 95,
-  "personne": {"prenom": "La bande", "emoji": "☕"},
-  "dynamiques": [
-    {"acteur": "Personne1", "role": "Role", "analyse": "Ce qu elle fait vraiment"},
-    {"acteur": "Personne2", "role": "Role", "analyse": "Ce qu elle fait vraiment"}
-  ],
-  "jeux_de_pouvoir": ["Manipulation 1", "Manipulation 2"],
-  "non_dits": ["Secret 1", "Secret 2"],
-  "alliances": "Qui est avec qui",
-  "tensions": "Ou ca chauffe",
-  "conseil": "Conseil de copine"
-}`;
-
-  const response = await client.chat.complete({
-    model: "mistral-large-latest",
-    messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt }
-    ],
-    temperature: 0.8,
-    maxTokens: 3000
-  });
-
-  const rawContent = response.choices?.[0]?.message?.content;
-
-  if (!rawContent) {
-    return { error: "Pas de réponse de l'IA" };
-  }
-
-  const content = typeof rawContent === 'string' 
-    ? rawContent 
-    : Array.isArray(rawContent) 
-      ? rawContent.join('') 
-      : String(rawContent);
-
-  const startIndex = content.indexOf("{");
-  const endIndex = content.lastIndexOf("}");
-
-  if (startIndex === -1 || endIndex === -1) {
-    return { error: "Pas de JSON dans la réponse" };
-  }
-
-  const jsonContent = content.substring(startIndex, endIndex + 1);
+Réponds UNIQUEMENT ce JSON :
+{"insight_principal":"Phrase choc","confiance_globale":90,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Pers1","role":"Role1","analyse":"Analyse1"},{"acteur":"Pers2","role":"Role2","analyse":"Analyse2"}],"jeux_de_pouvoir":["Jeu1","Jeu2"],"non_dits":["Non-dit1","Non-dit2"],"alliances":"Alliances","tensions":"Tensions","conseil":"Conseil"}`;
 
   try {
+    const response = await client.chat.complete({
+      model: "mistral-large-latest",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
+      temperature: 0.7,
+      maxTokens: 2000
+    });
+
+    const rawContent = response.choices?.[0]?.message?.content;
+
+    if (!rawContent) {
+      return { error: "Pas de réponse" };
+    }
+
+    const content = typeof rawContent === 'string' ? rawContent : String(rawContent);
+    
+    // Nettoyer le contenu
+    const cleanContent = content.trim().replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    
+    const startIndex = cleanContent.indexOf("{");
+    const endIndex = cleanContent.lastIndexOf("}");
+
+    if (startIndex === -1 || endIndex === -1) {
+      console.error("Pas de JSON trouvé:", cleanContent);
+      return { error: "Erreur d'analyse" };
+    }
+
+    const jsonContent = cleanContent.substring(startIndex, endIndex + 1);
     const result = JSON.parse(jsonContent);
+    
     return { ...result, degree: 3, mode: "comerage" };
-  } catch (parseError) {
-    return { error: "JSON malformé" };
+    
+  } catch (error) {
+    console.error("Erreur Mistral comérage:", error);
+    return { error: "Erreur lors de l'analyse" };
   }
 }
 
