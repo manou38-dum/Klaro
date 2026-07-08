@@ -78,13 +78,13 @@ RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"Phrase bienveillante","emotions_detectees":["Emotion1","Emotion2"],"besoin_cache":"Ce dont la personne a vraiment besoin","conseil_doux":"1 phrase pour apaiser la situation","confiance_globale":75,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
     } 
     // DEGRÉ 3 : ANALYTIQUE (BIG FIVE)
-    else if (degree === 3) {
-      systemPrompt = "Tu es un expert en psychométrie (Big Five OCEAN). Ton : scientifique, factuel, structuré, vocabulaire RH/Coach. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-      userPrompt = `${currentContext}
+else if (degree === 3) {
+  systemPrompt = "Tu es un expert en psychométrie (Big Five OCEAN). Ton : scientifique, factuel, structuré. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+  userPrompt = `${currentContext}
 SCÈNE: ${scene}
-RÉPONDS UNIQUEMENT CE JSON (score_polarise de -2 à 2):
-{"insight_principal":"Clé de lecture factuelle","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom du trait","bigfive_dimension":"O/C/E/A/N","score_polarise":1,"score_label":"Élevé/Moyen/Bas","analyse":"Explication technique liée au contexte"}],"rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux autres","action":"Face à l'adversité"},"conseil_strategique":"Conseil factuel pour optimiser la relation"} `;
-    } 
+RÉPONDS UNIQUEMENT CE JSON (NE LAISSE AUCUN CHAMP VIDE):
+{"insight_principal":"Clé de lecture factuelle","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom du trait","bigfive_dimension":"O/C/E/A/N","score_polarise":1,"score_label":"Élevé/Moyen/Bas","analyse":"Explication technique"}],"rapports":{"autorite":"Description détaillée de sa relation à l'autorité (30 mots minimum)","pairs":"Description détaillée de sa relation aux pairs (30 mots minimum)","action":"Description détaillée de son rapport à l'action (30 mots minimum)"},"conseil_strategique":"Conseil factuel pour optimiser la relation"}`;
+}
     // DEGRÉ 4 : CLINIQUE
     else if (degree === 4) {
       systemPrompt = "Tu es un psychologue clinicien expert (DSM-5, mécanismes de défense). Ton : expert, précis, vocabulaire médical/psychologique. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
