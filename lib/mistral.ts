@@ -17,116 +17,89 @@ export async function analyzeSituation(
 ) {
   try {
     const prenomSafe = prenom || "Inconnu";
-    const emojiDefault = degree === 3 ? "🎭" : degree === 4 ? "🧠" : degree === 5 ? "💀" : "👤";
+    const emojiDefault = degree === 3 ? "🎭" : degree === 4 ? "" : degree === 5 ? "💀" : "👤";
     const emojiSafe = emoji || emojiDefault;
 
-    // DÉCLARATION DES VARIABLES AVANT UTILISATION
     let systemPrompt = "";
     let userPrompt = "";
 
-    // MODE COMÉRAGE - Traitement spécial et retour immédiat
-  if (mode === "comerage") {
-  systemPrompt = "Tu es une copine qui analyse les ragots. Tu es directe et drôle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-
-  userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
-
+    // MODE COMÉRAGE (Inchangé)
+    if (mode === "comerage") {
+      systemPrompt = "Tu es un pote sarcastique qui décrypte les ragots. Tu es direct, drôle, un peu taquin. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
+RÈGLES : Identifie le genre de CHAQUE personne. Utilise "il" ou "elle".
 Réponds UNIQUEMENT ce JSON :
-{"insight_principal":"Phrase choc","confiance_globale":90,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Pers1","role":"Role1","analyse":"Analyse1"},{"acteur":"Pers2","role":"Role2","analyse":"Analyse2"}],"jeux_de_pouvoir":["Jeu1","Jeu2"],"non_dits":["Non-dit1","Non-dit2"],"alliances":"Alliances","tensions":"Tensions","conseil":"Conseil"}`;
+{"insight_principal":"Phrase choc","confiance_globale":90,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Analyse avec le bon pronom"},{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Analyse"}],"jeux_de_pouvoir":["Jeu1","Jeu2"],"non_dits":["Non-dit1","Non-dit2"],"alliances":"Alliances","tensions":"Tensions","conseil":"Conseil de pote"}`;
 
-  try {
-    const response = await client.chat.complete({
-      model: "mistral-large-latest",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: 0.7,
-      maxTokens: 2000
-    });
-
-    const rawContent = response.choices?.[0]?.message?.content;
-
-    if (!rawContent) {
-      return { error: "Pas de réponse" };
+      try {
+        const response = await client.chat.complete({
+          model: "mistral-large-latest",
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+          temperature: 0.7, maxTokens: 2000
+        });
+        const rawContent = response.choices?.[0]?.message?.content;
+        if (!rawContent) return { error: "Pas de réponse" };
+        const content = typeof rawContent === 'string' ? rawContent : String(rawContent);
+        const cleanContent = content.trim().replace(/```json\n?/g, '').replace(/```\n?/g, '');
+        const startIndex = cleanContent.indexOf("{");
+        const endIndex = cleanContent.lastIndexOf("}");
+        if (startIndex === -1 || endIndex === -1) return { error: "Erreur d'analyse" };
+        const result = JSON.parse(cleanContent.substring(startIndex, endIndex + 1));
+        return { ...result, degree: 3, mode: "comerage" };
+      } catch (error) {
+        console.error("Erreur Mistral comérage:", error);
+        return { error: "Erreur lors de l'analyse" };
+      }
     }
 
-    const content = typeof rawContent === 'string' ? rawContent : String(rawContent);
-    
-    // Nettoyer le contenu
-    const cleanContent = content.trim().replace(/```json\n?/g, '').replace(/```\n?/g, '');
-    
-    const startIndex = cleanContent.indexOf("{");
-    const endIndex = cleanContent.lastIndexOf("}");
+    // INSTRUCTION DE CONTEXTE (Pour rendre les réponses clivantes)
+    const contextInstructions: Record<string, string> = {
+      pro: "PRISME PROFESSIONNEL : Analyse sous l'angle du pouvoir, de la hiérarchie, de la carrière, de l'efficacité et des enjeux financiers. Vocabulaire corporate et leadership.",
+      familial: "PRISME FAMILIAL : Analyse sous l'angle des liens du sang, de l'histoire commune, de l'amour inconditionnel vs toxicité, et des rôles assignés (parent/enfant).",
+      ami: "PRISME AMICAL : Analyse sous l'angle de la loyauté, de la trahison, de l'ego, de la dynamique de groupe et du besoin d'appartenance.",
+      social: "PRISME SOCIAL : Analyse sous l'angle des normes sociales, du jugement d'autrui, de la politesse, des apparences et des codes de la société."
+    };
+    const currentContext = contextInstructions[mode] || "";
 
-    if (startIndex === -1 || endIndex === -1) {
-      console.error("Pas de JSON trouvé:", cleanContent);
-      return { error: "Erreur d'analyse" };
-    }
-
-    const jsonContent = cleanContent.substring(startIndex, endIndex + 1);
-    const result = JSON.parse(jsonContent);
-    
-    return { ...result, degree: 3, mode: "comerage" };
-    
-  } catch (error) {
-    console.error("Erreur Mistral comérage:", error);
-    return { error: "Erreur lors de l'analyse" };
-  }
-}
-
-    // MODES NORMAUX (pro, familial, ami, social)
+    // DEGRÉ 1 : INTUITION / POP-CULTURE
     if (degree === 1) {
-      systemPrompt = "Tu es un expert en intuition comportementale ULTRA-CONCIS. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
-    } else if (degree === 2) {
-      systemPrompt = "Tu es un observateur bienveillant. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
-    } else if (degree === 3) {
-      systemPrompt = "Tu es un analyste comportemental certifié (Big Five OCEAN). Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
-    } else if (degree === 4) {
-      systemPrompt = "Tu es un psychologue clinicien expert (DSM-5, Tcherkassoff). Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
-    } else if (degree === 5) {
-      systemPrompt = "Tu es un analyste cynique sans filtre. Tu révèles névroses et non-dits honteux avec lucidité cruelle. Ta réponse doit ÊTRE UNIQUEMENT du JSON valide, sans AUCUN texte avant ou après. Commence par { et finis par }. Aucun markdown.";
-    }
-
-    if (degree === 1) {
-      userPrompt = `CONTEXTE: ${mode.toUpperCase()}
-PERSONNE: ${prenomSafe} ${emojiSafe}
-
+      systemPrompt = "Tu es un expert pop-culture et intuition pure. Ton : fun, viral, cash. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"Phrase choc max 20 mots","mots_cles":["Mot1","Mot2","Mot3"],"ressenti_global":"Ambiance en 1-2 phrases","points_cles":[{"titre":"Comportement","explication":"Explication simple en 1 phrase"},{"titre":"Attitude","explication":"Explication simple en 1 phrase"},{"titre":"Conseil","explication":"1 conseil pratique simple"}],"confiance_globale":70,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
-    } else if (degree === 2) {
-      userPrompt = `CONTEXTE: ${mode.toUpperCase()}
-PERSONNE: ${prenomSafe} ${emojiSafe}
-
+{"insight_principal":"Phrase choc max 20 mots","reference_pop":"Comparaison avec une série, un film, un people ou une réplique culte qui résume la scène","mots_cles":["Mot1","Mot2","Mot3"],"ressenti_global":"Ambiance en 1-2 phrases","confiance_globale":70,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
+    } 
+    // DEGRÉ 2 : BIENVEILLANT
+    else if (degree === 2) {
+      systemPrompt = "Tu es un coach empathique et bienveillant. Ton : doux, compréhensif, focus sur les émotions. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"Phrase accroche","traits_surface":[{"trait":"Sympa","description":"Pourquoi en 1 phrase"},{"trait":"Timide","description":"Pourquoi en 1 phrase"}],"conseil_rapide":"1 phrase pour gérer","confiance_globale":75,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
-    } else if (degree === 3) {
-      userPrompt = `CONTEXTE: ${mode.toUpperCase()}
-PERSONNE: ${prenomSafe} ${emojiSafe}
-
+{"insight_principal":"Phrase bienveillante","emotions_detectees":["Emotion1","Emotion2"],"besoin_cache":"Ce dont la personne a vraiment besoin","conseil_doux":"1 phrase pour apaiser la situation","confiance_globale":75,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
+    } 
+    // DEGRÉ 3 : ANALYTIQUE (BIG FIVE)
+    else if (degree === 3) {
+      systemPrompt = "Tu es un expert en psychométrie (Big Five OCEAN). Ton : scientifique, factuel, structuré, vocabulaire RH/Coach. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
-RÉPONDS UNIQUEMENT CE JSON (Big Five O/C/E/A/N, score_polarise de -2 à 2):
-{"insight_principal":"Clé","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom","famille":"Famille","bigfive_dimension":"O","bigfive_facette":"Facette","score_polarise":1,"score_label":"Élevé","analyse":"Explication"}],"rapports":{"autorite":"...","pairs":"...","action":"..."},"conseil":"..."}`;
-    } else if (degree === 4) {
-      userPrompt = `CONTEXTE: ${mode.toUpperCase()}
-PERSONNE: ${prenomSafe} ${emojiSafe}
-
+RÉPONDS UNIQUEMENT CE JSON (score_polarise de -2 à 2):
+{"insight_principal":"Clé de lecture factuelle","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom du trait","bigfive_dimension":"O/C/E/A/N","score_polarise":1,"score_label":"Élevé/Moyen/Bas","analyse":"Explication technique liée au contexte"}],"rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux autres","action":"Face à l'adversité"},"conseil_strategique":"Conseil factuel pour optimiser la relation"} `;
+    } 
+    // DEGRÉ 4 : CLINIQUE
+    else if (degree === 4) {
+      systemPrompt = "Tu es un psychologue clinicien expert (DSM-5, mécanismes de défense). Ton : expert, précis, vocabulaire médical/psychologique. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"Insight clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Trait clinique","famille":"Mécanisme","bigfive_dimension":"O","bigfive_facette":"Facette","score_polarise":1,"score_label":"Élevé","analyse":"Analyse technique"}],"vigilances_dsm5":{"style_associe":"...","description":"...","warning":"..."},"analyse_emotionnelle_tcherkassoff":{"expression":"...","regulation":"...","decryptage":"..."},"conseil":"..."}`;
-    } else {
-      userPrompt = `CONTEXTE: ${mode.toUpperCase()}
-PERSONNE: ${prenomSafe} ${emojiSafe}
-
+{"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","conseil_pro":"Comment gérer ce profil cliniquement"} `;
+    } 
+    // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
+    else {
+      systemPrompt = "Tu es un expert en psychologie sombre (Machiavel, manipulation, PNL). Ton : cynique, brutal, sans filtre, lucidité cruelle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
-RÉPONDS UNIQUEMENT CE JSON (ton cynique):
-{"insight_principal":"Vérité qui fait mal","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Névrose dominante","famille":"Défense","bigfive_dimension":"N","bigfive_facette":"Anxiété","score_polarise":2,"score_label":"Extrême","analyse":"Description cruelle vraie"}],"rapports":{"autorite":"Flatte/soumet","pairs":"Manipule/isole","action":"Sabote"},"zone_ombre":["Secret 1","Secret 2"],"conseil":"Comment neutraliser"}`;
+RÉPONDS UNIQUEMENT CE JSON:
+{"insight_principal":"La vérité qui blesse","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"conseil_machiavel":"Comment prendre le dessus ou se protéger brutalement"} `;
     }
 
     const response = await client.chat.complete({
@@ -140,33 +113,20 @@ RÉPONDS UNIQUEMENT CE JSON (ton cynique):
     });
 
     const rawContent = response.choices?.[0]?.message?.content;
+    if (!rawContent) return { error: "Pas de réponse de l'IA" };
 
-    if (!rawContent) {
-      return { error: "Pas de réponse de l'IA" };
-    }
-
-    const content = typeof rawContent === 'string' 
-      ? rawContent 
-      : Array.isArray(rawContent) 
-        ? rawContent.join('') 
-        : String(rawContent);
-
-    console.log("📩 Réponse Mistral:", content.substring(0, 300));
-
+    const content = typeof rawContent === 'string' ? rawContent : Array.isArray(rawContent) ? rawContent.join('') : String(rawContent);
     const startIndex = content.indexOf("{");
     const endIndex = content.lastIndexOf("}");
 
-    if (startIndex === -1 || endIndex === -1) {
-      return { error: "Pas de JSON dans la réponse", raw: content.substring(0, 200) };
-    }
-
+    if (startIndex === -1 || endIndex === -1) return { error: "Pas de JSON dans la réponse" };
     const jsonContent = content.substring(startIndex, endIndex + 1);
 
     try {
       const result = JSON.parse(jsonContent);
       return { ...result, degree };
     } catch (parseError) {
-      return { error: "JSON malformé", extractedPreview: jsonContent.substring(0, 200) };
+      return { error: "JSON malformé" };
     }
 
   } catch (error) {
