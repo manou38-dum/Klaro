@@ -18,41 +18,34 @@ export default function ShareButton({ result }: any) {
     if (mode === "comerage") {
       return `☕ Viens voir ce décryptage de fou ! "${insight}" - Trop drôle et trop vrai !`;
     }
-    if (mode === "pro") {
-      return `💼 Analyse pro : "${insight}" - Klaro m'a aidé à comprendre les dynamiques au travail.`;
-    }
-    if (mode === "familial") {
-      return `❤️ Analyse familiale : "${insight}" - Ça m'a ouvert les yeux sur nos relations.`;
-    }
-    return `🎯 Analyse : "${insight}" - Découvrez Klaro, l'appli qui décrypte les comportements !`;
+    return `🎯 Analyse : "${insight}" - Découvrez Klaro !`;
   };
 
   const shareUrl = "https://klaro.vercel.app";
 
   const generateImage = async () => {
     const element = document.getElementById("result-card");
-    if (!element) {
-      setShowPreview(true);
-      return;
-    }
-
+    
     setIsGenerating(true);
+    
+    // Tenter de générer l'image, mais ouvrir le menu même en cas d'échec
     try {
-      const canvas = await html2canvas(element, {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-      const url = canvas.toDataURL("image/png");
-      setImageUrl(url);
-      setShowPreview(true);
+      if (element) {
+        const canvas = await html2canvas(element, {
+          backgroundColor: "#ffffff",
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+        const url = canvas.toDataURL("image/png");
+        setImageUrl(url);
+      }
     } catch (error) {
       console.error("Erreur génération image:", error);
-      setShowPreview(true);
-    } finally {
-      setIsGenerating(false);
     }
+    
+    setIsGenerating(false);
+    setShowPreview(true); // Toujours ouvrir le menu
   };
 
   const downloadImage = () => {
