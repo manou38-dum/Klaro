@@ -21,7 +21,7 @@ export default function ShareButton({ result }: any) {
     return `🎯 Analyse : "${insight}" - Découvrez Klaro !`;
   };
 
-  const shareUrl = "https://klaro.vercel.app";
+  const shareUrl = "https://klaro-weld.vercel.app";
 
   const generateImage = async () => {
     const element = document.getElementById("result-card");
