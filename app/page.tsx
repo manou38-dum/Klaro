@@ -1,8 +1,20 @@
 import Link from "next/link";
-import { Briefcase, Home, Users, Globe, Lock, Shield, MessageCircle } from "lucide-react";
+import { Briefcase, Home, Users, Globe, Lock, Shield, MessageCircle, Sparkles, Zap } from "lucide-react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
 const CONTEXTS = [
+  {
+    id: "comerage",
+    label: "Comérage",
+    icon: MessageCircle,
+    bg: "bg-gradient-to-br from-pink-50 to-rose-50",
+    border: "border-pink-300",
+    text: "text-pink-700",
+    description: "Décrypte les ragots et dynamiques de groupe",
+    examples: "Ex: une soirée, un dîner, une réunion de famille...",
+    badge: "🔥 Nouveau",
+    featured: true
+  },
   {
     id: "pro",
     label: "Professionnel",
@@ -42,24 +54,13 @@ const CONTEXTS = [
     text: "text-amber-700",
     description: "Voisins, inconnus, administration, vacances",
     examples: "Ex: un voisin, un serveur, un agent..."
-  },
-
-    {
-    id: "comerage",
-    label: "Comérage",
-    icon: MessageCircle,
-    bg: "bg-pink-50",
-    border: "border-pink-200",
-    text: "text-pink-700",
-    description: "Ragots, dynamiques de groupe, jeux de pouvoir",
-    examples: "Ex: une soirée, un groupe d'amis, une réunion de famille..."
   }
 ];
 
 export default function HomePage() {
   return (
     <div className="max-w-xl mx-auto space-y-6 p-4">
-                  {/* Header avec authentification */}
+      {/* Header avec authentification */}
       <div className="flex justify-between items-center mb-4">
         <SignedIn>
           <Link
@@ -89,10 +90,19 @@ export default function HomePage() {
         </div>
       </div>
       
-      {/* Titre */}
+      {/* Titre accrocheur */}
       <div className="text-center mb-6 space-y-3">
-        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Klaro</h1>
-        <p className="text-slate-500">Comprendre les comportements, une scène à la fois.</p>
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full text-pink-700 text-sm font-bold mb-3">
+          <Sparkles className="w-4 h-4" />
+          Nouveau : Mode Comérage disponible !
+        </div>
+        <h1 className="text-5xl font-black text-slate-900 tracking-tight">Klaro</h1>
+        <p className="text-lg text-slate-600 font-medium">
+          Comprendre les gens, <span className="text-violet-600">une scène à la fois</span>.
+        </p>
+        <p className="text-sm text-slate-500 max-w-md mx-auto">
+          Analyse comportementale intelligente pour décrypter les dynamiques pro, perso... et les ragots ! ☕
+        </p>
       </div>
 
       {/* Message de confidentialité */}
@@ -107,21 +117,41 @@ export default function HomePage() {
           </p>
           <p className="text-slate-700 leading-relaxed">
             Utilisez des <strong>surnoms, initiales ou prénoms fictifs</strong> (ex: "M.", "Le Boss", "X").
-            Vos analyses restent strictement personnelles et ne sont jamais partagées.
+            Vos analyses restent strictement personnelles.
           </p>
         </div>
+      </div>
+
+      {/* Section Comérage mise en avant */}
+      <div className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-3xl p-6 text-white shadow-xl">
+        <div className="flex items-center gap-2 mb-3">
+          <MessageCircle className="w-8 h-8" />
+          <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-bold">POPULAIRE</span>
+        </div>
+        <h2 className="text-2xl font-black mb-2">☕ Mode Comérage</h2>
+        <p className="text-sm opacity-95 mb-4">
+          Décrypte les dynamiques de groupe, les ragots et les jeux de pouvoir comme si tu parlais avec ta meilleure pote. 
+          Direct, drôle et sans filtre !
+        </p>
+        <Link
+          href="/modes/comerage"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white text-pink-600 font-bold rounded-xl hover:bg-pink-50 transition shadow-lg"
+        >
+          <Zap className="w-5 h-5" />
+          Tester maintenant
+        </Link>
       </div>
 
       {/* Question principale */}
       <div className="text-center">
         <h2 className="text-xl font-bold text-slate-900">
-          Dans quel contexte voulez-vous analyser ?
+          Ou choisis un autre contexte :
         </h2>
       </div>
 
       {/* Grille des contextes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {CONTEXTS.map((context) => (
+        {CONTEXTS.filter(c => !c.featured).map((context) => (
           <Link
             key={context.id}
             href={`/modes/${context.id}`}
@@ -142,32 +172,33 @@ export default function HomePage() {
       </div>
 
       {/* Comment ça marche */}
-      <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200">
-        <h3 className="font-black text-slate-900 mb-3 text-sm uppercase tracking-wider">
-          🎯 Comment ça marche ?
+      <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-5 border-2 border-violet-200">
+        <h3 className="font-black text-slate-900 mb-4 text-base flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-violet-600" />
+          Comment ça marche ?
         </h3>
-        <ol className="space-y-2 text-sm text-slate-700">
-          <li className="flex gap-2">
-            <span className="font-black text-violet-600">1.</span>
-            <span>Choisissez un contexte ci-dessus</span>
+        <ol className="space-y-3 text-sm text-slate-700">
+          <li className="flex gap-3 items-start">
+            <span className="flex-shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center font-black text-xs">1</span>
+            <span>Choisis un contexte (Comérage, Pro, Perso...)</span>
           </li>
-          <li className="flex gap-2">
-            <span className="font-black text-violet-600">2.</span>
-            <span>Sélectionnez le degré d'analyse (de l'intuition au hardcore)</span>
+          <li className="flex gap-3 items-start">
+            <span className="flex-shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center font-black text-xs">2</span>
+            <span>Décris une scène précise (qui, quoi, où, quand)</span>
           </li>
-          <li className="flex gap-2">
-            <span className="font-black text-violet-600">3.</span>
-            <span>Créez ou choisissez une personne (anonyme)</span>
+          <li className="flex gap-3 items-start">
+            <span className="flex-shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center font-black text-xs">3</span>
+            <span>Choisis le niveau d'analyse (de l'intuition au hardcore)</span>
           </li>
-          <li className="flex gap-2">
-            <span className="font-black text-violet-600">4.</span>
-            <span>Décrivez une scène précise et obtenez l'analyse</span>
+          <li className="flex gap-3 items-start">
+            <span className="flex-shrink-0 w-6 h-6 bg-violet-600 text-white rounded-full flex items-center justify-center font-black text-xs">4</span>
+            <span>Obtiens une analyse comportementale détaillée en quelques secondes</span>
           </li>
         </ol>
       </div>
 
-            {/* Outils avancés */}
-      <div className="pt-6">
+      {/* Outils avancés */}
+      <div className="pt-4">
         <div className="flex items-center gap-2 mb-4">
           <div className="h-px bg-slate-200 flex-1" />
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -253,9 +284,12 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <div className="text-center pt-6 pb-4">
-        <p className="text-xs text-slate-400">
+      <div className="text-center pt-6 pb-4 border-t border-slate-200">
+        <p className="text-xs text-slate-400 mb-1">
           Klaro — Analyse comportementale non clinique
+        </p>
+        <p className="text-xs text-slate-400">
+          3 analyses gratuites • Premium à 9,99€/mois
         </p>
       </div>
     </div>
