@@ -291,6 +291,65 @@ export default function HomePage() {
         <p className="text-xs text-slate-400">
           3 analyses gratuites • Premium à 9,99€/mois
         </p>
+              {/* Témoignages */}
+      <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-2xl p-6 border-2 border-slate-200">
+        <h3 className="font-black text-slate-900 mb-5 text-center text-lg">
+          💬 Ils ont testé Klaro
+        </h3>
+        
+        <div className="space-y-4">
+          {/* Témoignage 1 - Comérage */}
+          <div className="bg-white p-4 rounded-xl border border-pink-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-pink-400 to-rose-400 rounded-full flex items-center justify-center text-white font-bold">
+                L
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">Léa, 28 ans</p>
+                <div className="flex text-amber-400 text-xs">★★★★★</div>
+              </div>
+            </div>
+            <p className="text-sm text-slate-700 italic">
+              "Le mode Comérage est génial ! J'ai analysé une soirée entre amis et l'IA a vraiment capté les dynamiques. 
+              C'est drôle, direct et ça m'a ouvert les yeux sur certains jeux de pouvoir. ☕"
+            </p>
+          </div>
+
+          {/* Témoignage 2 - Pro */}
+          <div className="bg-white p-4 rounded-xl border border-blue-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-full flex items-center justify-center text-white font-bold">
+                M
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">Marc, 35 ans</p>
+                <div className="flex text-amber-400 text-xs">★★★★★</div>
+              </div>
+            </div>
+            <p className="text-sm text-slate-700 italic">
+              "J'utilise Klaro en mode Pro pour comprendre mon nouveau boss. Les analyses Big Five sont pertinentes 
+              et m'ont aidé à adapter ma façon de travailler avec lui. Top ! 💼"
+            </p>
+          </div>
+
+          {/* Témoignage 3 - Familial */}
+          <div className="bg-white p-4 rounded-xl border border-rose-200 shadow-sm">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold">
+                S
+              </div>
+              <div>
+                <p className="font-bold text-slate-900 text-sm">Sophie, 42 ans</p>
+                <div className="flex text-amber-400 text-xs">★★★★★</div>
+              </div>
+            </div>
+            <p className="text-sm text-slate-700 italic">
+              "Super pour décrypter les tensions familiales. J'ai analysé une dispute avec ma sœur et l'analyse 
+              m'a aidée à comprendre son point de vue. Je recommande ! ❤️"
+            </p>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   );
