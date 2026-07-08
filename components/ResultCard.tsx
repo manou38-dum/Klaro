@@ -29,6 +29,16 @@ const MODE_CONFIG: any = {
   hardcore: { icon: Flame, label: "Hardcore", gradient: "from-gray-900 to-black", ring: "ring-red-900", accent: "text-red-500" }
 };
 
+// Fonction pour nettoyer les astérisques Markdown
+const cleanMarkdown = (text: string) => {
+  if (!text) return "";
+  return text
+    .replace(/\*\*/g, "")  // Supprime les **
+    .replace(/\*/g, "")    // Supprime les *
+    .replace(/__/g, "")    // Supprime les __
+    .replace(/_/g, "");    // Supprime les _
+};
+
 export default function ResultCard({ result }: any) {
   const [activeTab, setActiveTab] = useState("autorite");
   const [mode, setMode] = useState("pro");
@@ -66,7 +76,7 @@ export default function ResultCard({ result }: any) {
           <div className="bg-gradient-to-br from-rose-500 to-pink-600 p-6 text-white text-center">
             <div className="text-6xl mb-3">☕</div>
             <h2 className="text-2xl font-black mb-2">Décryptage entre copines</h2>
-            <p className="text-lg opacity-90">{String(result.insight_principal)}</p>
+            <p className="text-lg opacity-90">{cleanMarkdown(String(result.insight_principal))}</p>
           </div>
 
           <div className="p-5 space-y-3 bg-gradient-to-b from-pink-50 to-white">
@@ -81,7 +91,7 @@ export default function ResultCard({ result }: any) {
                     {String(d.role) || "Rôle"}
                   </span>
                 </div>
-                <p className="text-sm text-slate-600 italic">💬 {String(d.analyse)}</p>
+                <p className="text-sm text-slate-600 italic">💬 {cleanMarkdown(String(d.analyse))}</p>
               </div>
             ))}
           </div>
@@ -110,14 +120,14 @@ export default function ResultCard({ result }: any) {
               <Heart className="w-5 h-5 text-pink-500 mt-0.5 flex-shrink-0" />
               <div>
                 <h4 className="font-bold text-sm text-slate-800">Alliances</h4>
-                <p className="text-sm text-slate-600">{String(result.alliances)}</p>
+                <p className="text-sm text-slate-600">{cleanMarkdown(String(result.alliances))}</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Fire className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
               <div>
                 <h4 className="font-bold text-sm text-slate-800">Tensions</h4>
-                <p className="text-sm text-slate-600">{String(result.tensions)}</p>
+                <p className="text-sm text-slate-600">{cleanMarkdown(String(result.tensions))}</p>
               </div>
             </div>
           </div>
@@ -128,7 +138,7 @@ export default function ResultCard({ result }: any) {
                 <MessageCircle className="w-6 h-6 mt-0.5" />
                 <div>
                   <p className="text-xs uppercase opacity-80 mb-1 font-bold">Conseil de copine</p>
-                  <p className="text-base">{String(result.conseil)}</p>
+                  <p className="text-base">{cleanMarkdown(String(result.conseil))}</p>
                 </div>
               </div>
             </div>
@@ -158,7 +168,7 @@ export default function ResultCard({ result }: any) {
           <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
             <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
             <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "Inconnu"}</h2>
-            <p className="text-lg">{String(result.insight_principal)}</p>
+            <p className="text-lg">{cleanMarkdown(String(result.insight_principal))}</p>
           </div>
           
           <div className="p-6 space-y-4 bg-slate-50">
@@ -169,8 +179,8 @@ export default function ResultCard({ result }: any) {
                 ))}
               </div>
             )}
-            {result.ressenti_global && <p className="italic text-slate-600">{String(result.ressenti_global)}</p>}
-            {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {String(result.conseil_rapide)}</p>}
+            {result.ressenti_global && <p className="italic text-slate-600">{cleanMarkdown(String(result.ressenti_global))}</p>}
+            {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}</p>}
           </div>
 
           <div className="flex gap-3 p-6">
@@ -188,7 +198,7 @@ export default function ResultCard({ result }: any) {
         <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
           <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
           <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "Inconnu"}</h2>
-          <p className="text-lg">{String(result.insight_principal)}</p>
+          <p className="text-lg">{cleanMarkdown(String(result.insight_principal))}</p>
           <p className="text-sm mt-2">{result.confiance_globale}% confiance</p>
         </div>
 
@@ -201,7 +211,7 @@ export default function ResultCard({ result }: any) {
                 <span className="text-xs px-2 py-1 bg-slate-100 rounded">{String(trait.score_label) || "Moyen"}</span>
               </div>
               {trait.score_polarise !== undefined && <BigFiveGauge score={trait.score_polarise} dimension={trait.bigfive_dimension || "N"} />}
-              <p className="text-sm text-slate-600 mt-2 italic">{String(trait.analyse)}</p>
+              <p className="text-sm text-slate-600 mt-2 italic">{cleanMarkdown(String(trait.analyse))}</p>
             </div>
           ))}
         </div>
@@ -215,7 +225,7 @@ export default function ResultCard({ result }: any) {
           </div>
           <div className="p-4 bg-slate-50 rounded-lg">
             <p className="text-sm text-slate-700">
-              {activeTab === "autorite" ? String(rapports.autorite) : activeTab === "pairs" ? String(rapports.pairs) : String(rapports.action)}
+              {activeTab === "autorite" ? cleanMarkdown(String(rapports.autorite)) : activeTab === "pairs" ? cleanMarkdown(String(rapports.pairs)) : cleanMarkdown(String(rapports.action))}
             </p>
           </div>
         </div>
@@ -226,7 +236,7 @@ export default function ResultCard({ result }: any) {
               <Lightbulb className="w-6 h-6" />
               <div>
                 <p className="text-xs uppercase opacity-80 mb-1">Conseil</p>
-                <p className="text-base">{String(result.conseil)}</p>
+                <p className="text-base">{cleanMarkdown(String(result.conseil))}</p>
               </div>
             </div>
           </div>
@@ -238,7 +248,7 @@ export default function ResultCard({ result }: any) {
             <div className="px-4 pb-4">
               <ul className="space-y-2">
                 {zoneOmbre.map((item: any, i: number) => (
-                  <li key={i} className="text-sm text-slate-600">• {String(item)}</li>
+                  <li key={i} className="text-sm text-slate-600">• {cleanMarkdown(String(item))}</li>
                 ))}
               </ul>
             </div>

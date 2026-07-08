@@ -57,7 +57,9 @@ export default function ShareButton({ result }: any) {
   };
 
   const shareWhatsApp = () => {
-  // Créer un message détaillé avec le résultat
+  const resultData = btoa(JSON.stringify(result));
+  const shareLink = `${shareUrl}/share?data=${resultData}`;
+  
   let message = "";
   
   if (result.mode === "comerage") {
@@ -72,39 +74,22 @@ export default function ShareButton({ result }: any) {
       message += `\n`;
     }
     
-    if (result.jeux_de_pouvoir && result.jeux_de_pouvoir.length > 0) {
-      message += `🎭 *Jeux de pouvoir :*\n`;
-      result.jeux_de_pouvoir.forEach((j: any) => {
-        message += `• ${j}\n`;
-      });
-      message += `\n`;
-    }
-    
     if (result.conseil) {
       message += `💬 *Conseil de pote :* ${result.conseil}\n\n`;
     }
     
-    message += `🔗 Découvre Klaro : ${shareUrl}`;
+    message += `👉 *Voir l'analyse complète :* ${shareLink}`;
     
   } else {
-    // Modes standards
     message = `🎯 *ANALYSE KLARO*\n\n`;
     message += `👤 *${result.personne?.prenom || "Personne"}*\n\n`;
     message += `💡 ${result.insight_principal}\n\n`;
-    
-    if (result.traits && result.traits.length > 0) {
-      message += `📊 *Traits principaux :*\n`;
-      result.traits.slice(0, 3).forEach((t: any) => {
-        message += `• ${t.trait} : ${t.analyse}\n`;
-      });
-      message += `\n`;
-    }
     
     if (result.conseil) {
       message += `💬 *Conseil :* ${result.conseil}\n\n`;
     }
     
-    message += `🔗 Fais ta propre analyse : ${shareUrl}`;
+    message += `👉 *Voir l'analyse complète :* ${shareLink}`;
   }
 
   const encodedMessage = encodeURIComponent(message);
