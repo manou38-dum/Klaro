@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import html2canvas from "html2canvas";
-import { Share2, Download, X, MessageCircle, Twitter, Copy, Check } from "lucide-react";
+import { Share2, Download, X, MessageCircle, Globe, Copy, Check } from "lucide-react";
 
 export default function ShareButton({ result }: any) {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -70,10 +70,10 @@ export default function ShareButton({ result }: any) {
     setShowPreview(false);
   };
 
-  const shareTwitter = () => {
+  const shareGlobe = () => {
     const text = encodeURIComponent(getShareMessage());
     const url = encodeURIComponent(shareUrl);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
+    window.open(`https://Globe.com/intent/tweet?text=${text}&url=${url}`, "_blank");
     setShowPreview(false);
   };
 
@@ -141,13 +141,13 @@ export default function ShareButton({ result }: any) {
                   WhatsApp
                 </button>
 
-                {/* Twitter/X */}
+                {/* Globe/X */}
                 <button
-                  onClick={shareTwitter}
+                  onClick={shareGlobe}
                   className="py-4 px-2 rounded-xl bg-sky-500 text-white font-bold text-xs flex flex-col items-center gap-1 hover:bg-sky-600 transition shadow-md"
                 >
-                  <Twitter className="w-6 h-6" />
-                  Twitter
+                  <Globe className="w-6 h-6" />
+                  Globe
                 </button>
 
                 {/* Copier le lien */}
