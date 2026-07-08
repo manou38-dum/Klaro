@@ -17,13 +17,13 @@ export async function analyzeSituation(
 ) {
   try {
     const prenomSafe = prenom || "Inconnu";
-    const emojiDefault = degree === 3 ? "🎭" : degree === 4 ? "" : degree === 5 ? "💀" : "👤";
+    const emojiDefault = degree === 3 ? "🎭" : degree === 4 ? "🧠" : degree === 5 ? "💀" : "👤";
     const emojiSafe = emoji || emojiDefault;
 
     let systemPrompt = "";
     let userPrompt = "";
 
-    // MODE COMÉRAGE (Inchangé)
+    // MODE COMÉRAGE
     if (mode === "comerage") {
       systemPrompt = "Tu es un pote sarcastique qui décrypte les ragots. Tu es direct, drôle, un peu taquin. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
       userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
@@ -52,7 +52,7 @@ Réponds UNIQUEMENT ce JSON :
       }
     }
 
-    // INSTRUCTION DE CONTEXTE (Pour rendre les réponses clivantes)
+    // INSTRUCTION DE CONTEXTE
     const contextInstructions: Record<string, string> = {
       pro: "PRISME PROFESSIONNEL : Analyse sous l'angle du pouvoir, de la hiérarchie, de la carrière, de l'efficacité et des enjeux financiers. Vocabulaire corporate et leadership.",
       familial: "PRISME FAMILIAL : Analyse sous l'angle des liens du sang, de l'histoire commune, de l'amour inconditionnel vs toxicité, et des rôles assignés (parent/enfant).",
@@ -78,20 +78,20 @@ RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"Phrase bienveillante","emotions_detectees":["Emotion1","Emotion2"],"besoin_cache":"Ce dont la personne a vraiment besoin","conseil_doux":"1 phrase pour apaiser la situation","confiance_globale":75,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"}}`;
     } 
     // DEGRÉ 3 : ANALYTIQUE (BIG FIVE)
-else if (degree === 3) {
-  systemPrompt = "Tu es un expert en psychométrie (Big Five OCEAN). Ton : scientifique, factuel, structuré. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-  userPrompt = `${currentContext}
+    else if (degree === 3) {
+      systemPrompt = "Tu es un expert en psychométrie (Big Five OCEAN). Ton : scientifique, factuel, structuré, vocabulaire RH/Coach. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+      userPrompt = `${currentContext}
 SCÈNE: ${scene}
-RÉPONDS UNIQUEMENT CE JSON (NE LAISSE AUCUN CHAMP VIDE):
-{"insight_principal":"Clé de lecture factuelle","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom du trait","bigfive_dimension":"O/C/E/A/N","score_polarise":1,"score_label":"Élevé/Moyen/Bas","analyse":"Explication technique"}],"rapports":{"autorite":"Description détaillée de sa relation à l'autorité (30 mots minimum)","pairs":"Description détaillée de sa relation aux pairs (30 mots minimum)","action":"Description détaillée de son rapport à l'action (30 mots minimum)"},"conseil_strategique":"Conseil factuel pour optimiser la relation"}`;
-}
+RÉPONDS UNIQUEMENT CE JSON (score_polarise de -2 à 2) - REMPLIS TOUS LES CHAMPS OBLIGATOIRES:
+{"insight_principal":"Clé de lecture factuelle","confiance_globale":85,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"traits":[{"trait":"Nom du trait","bigfive_dimension":"O/C/E/A/N","score_polarise":1,"score_label":"Élevé/Moyen/Bas","analyse":"Explication technique liée au contexte"}],"rapports":{"autorite":"Relation au pouvoir (20-30 mots)","pairs":"Relation aux autres (20-30 mots)","action":"Face à l'adversité (20-30 mots)"},"conseil_strategique":"Conseil factuel pour optimiser la relation"}`;
+    } 
     // DEGRÉ 4 : CLINIQUE
     else if (degree === 4) {
       systemPrompt = "Tu es un psychologue clinicien expert (DSM-5, mécanismes de défense). Ton : expert, précis, vocabulaire médical/psychologique. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
       userPrompt = `${currentContext}
 SCÈNE: ${scene}
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","conseil_pro":"Comment gérer ce profil cliniquement"} `;
+{"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_pro":"Comment gérer ce profil cliniquement"}`;
     } 
     // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
     else {
@@ -99,7 +99,7 @@ RÉPONDS UNIQUEMENT CE JSON:
       userPrompt = `${currentContext}
 SCÈNE: ${scene}
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"La vérité qui blesse","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"conseil_machiavel":"Comment prendre le dessus ou se protéger brutalement"} `;
+{"insight_principal":"La vérité qui blesse","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_machiavel":"Comment prendre le dessus ou se protéger brutalement"}`;
     }
 
     const response = await client.chat.complete({
@@ -124,6 +124,25 @@ RÉPONDS UNIQUEMENT CE JSON:
 
     try {
       const result = JSON.parse(jsonContent);
+      
+      // GÉNÉRER DES RAPPORTS PAR DÉFAUT SI MANQUANTS
+      if (!result.rapports) {
+        const contextLabel = mode === 'pro' ? 'professionnel' : mode === 'familial' ? 'familial' : mode === 'ami' ? 'amical' : 'social';
+        const toneHardcore = degree === 5;
+        
+        result.rapports = {
+          autorite: toneHardcore 
+            ? `En contexte ${contextLabel}, il/elle utilise l'autorité comme une arme de domination. Son pouvoir ne vient pas de sa compétence mais de sa capacité à intimider et contrôler.`
+            : `Dans un contexte ${contextLabel}, sa relation à l'autorité révèle ${degree >= 3 ? "une recherche de reconnaissance hiérarchique" : "un besoin de validation"}.`,
+          pairs: toneHardcore
+            ? `Avec ses pairs, c'est la loi du plus fort. Il/elle crée des alliances temporaires qu'il/elle brise dès qu'elles ne servent plus ses intérêts.`
+            : `Avec ses pairs, il/elle adopte une posture ${degree >= 3 ? "compétitive mais structurante" : "plutôt collaborative"}.`,
+          action: toneHardcore
+            ? `Face à l'action, il/elle privilégie le contrôle absolu. Chaque initiative doit passer par son filtre, créant goulots d'étranglement et dépendance.`
+            : `Face à l'action, il/elle ${degree >= 3 ? "analyse avant d'agir, parfois au détriment de la réactivité" : "agit avec spontanéité"}.`
+        };
+      }
+      
       return { ...result, degree };
     } catch (parseError) {
       return { error: "JSON malformé" };
