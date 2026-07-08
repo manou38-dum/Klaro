@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Share2, MessageCircle, Twitter, Copy, Check, X } from "lucide-react";
+import html2canvas from "html2canvas";
+import { Share2, Download, X, MessageCircle, Globe, Copy, Check } from "lucide-react";
 
 export default function ShareButton({ result }: any) {
-  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const getShareMessage = () => {
@@ -13,31 +16,64 @@ export default function ShareButton({ result }: any) {
     const insight = result?.insight_principal || "une analyse intéressante";
     
     if (mode === "comerage") {
-      return `☕ Viens voir ce décryptage de fou sur ${prenom} ! "${insight}" - Trop drôle et trop vrai !`;
+      return `☕ Viens voir ce décryptage de fou ! "${insight}" - Trop drôle et trop vrai !`;
     }
     if (mode === "pro") {
-      return `💼 Analyse pro de ${prenom} : "${insight}" - Klaro m'a aidé à comprendre les dynamiques au travail.`;
+      return `💼 Analyse pro : "${insight}" - Klaro m'a aidé à comprendre les dynamiques au travail.`;
     }
     if (mode === "familial") {
-      return `❤️ Analyse familiale de ${prenom} : "${insight}" - Ça m'a ouvert les yeux sur nos relations.`;
+      return `❤️ Analyse familiale : "${insight}" - Ça m'a ouvert les yeux sur nos relations.`;
     }
-    return `🎯 Analyse de ${prenom} : "${insight}" - Découvrez Klaro, l'appli qui décrypte les comportements !`;
+    return `🎯 Analyse : "${insight}" - Découvrez Klaro, l'appli qui décrypte les comportements !`;
   };
 
-  const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://klaro.vercel.app";
+  const shareUrl = "https://klaro.vercel.app";
+
+  const generateImage = async () => {
+    const element = document.getElementById("result-card");
+    if (!element) {
+      setShowPreview(true);
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const canvas = await html2canvas(element, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const url = canvas.toDataURL("image/png");
+      setImageUrl(url);
+      setShowPreview(true);
+    } catch (error) {
+      console.error("Erreur génération image:", error);
+      setShowPreview(true);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const downloadImage = () => {
+    if (!imageUrl) return;
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = `klaro-analyse.png`;
+    link.click();
+  };
 
   const shareWhatsApp = () => {
-    const message = encodeURIComponent(getShareMessage());
-    const url = encodeURIComponent(shareUrl);
-    window.open(`https://wa.me/?text=${message}%20${url}`, "_blank");
-    setShowShareMenu(false);
+    const message = encodeURIComponent(getShareMessage() + " " + shareUrl);
+    window.open(`https://wa.me/?text=${message}`, "_blank");
+    setShowPreview(false);
   };
 
   const shareTwitter = () => {
     const text = encodeURIComponent(getShareMessage());
     const url = encodeURIComponent(shareUrl);
     window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
-    setShowShareMenu(false);
+    setShowPreview(false);
   };
 
   const copyLink = async () => {
@@ -53,62 +89,83 @@ export default function ShareButton({ result }: any) {
   return (
     <>
       <button
-        onClick={() => setShowShareMenu(true)}
-        className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-sm transition flex items-center justify-center gap-2 hover:brightness-110 shadow-lg"
+        onClick={generateImage}
+        disabled={isGenerating}
+        className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 text-white font-bold text-sm transition flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
       >
-        <Share2 className="w-5 h-5" />
-        Partager
+        {isGenerating ? (
+          <>
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+            Génération...
+          </>
+        ) : (
+          <>
+            <Share2 className="w-5 h-5" />
+            Partager
+          </>
+        )}
       </button>
 
-      {showShareMenu && (
+      {showPreview && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between">
+          <div className="bg-white rounded-2xl max-w-sm w-full overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white z-10">
               <h3 className="font-bold text-slate-900">Partager l'analyse</h3>
               <button
-                onClick={() => setShowShareMenu(false)}
+                onClick={() => setShowPreview(false)}
                 className="p-2 hover:bg-slate-100 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="p-6 space-y-4">
-              <p className="text-sm text-slate-600 text-center">
-                Partage cette analyse avec tes amis !
-              </p>
+            {imageUrl && (
+              <div className="p-4">
+                <img src={imageUrl} alt="Aperçu" className="w-full rounded-lg" />
+              </div>
+            )}
 
-              <div className="grid grid-cols-3 gap-3">
-                {/* WhatsApp */}
+            <div className="p-4 space-y-3">
+              <p className="text-xs text-slate-500 text-center font-semibold uppercase">Partager sur :</p>
+              
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={shareWhatsApp}
-                  className="py-4 px-3 rounded-xl bg-green-500 text-white font-bold text-xs flex flex-col items-center gap-2 hover:bg-green-600 transition shadow-md"
+                  className="py-4 px-2 rounded-xl bg-green-500 text-white font-bold text-xs flex flex-col items-center gap-1 hover:bg-green-600 transition shadow-md"
                 >
                   <MessageCircle className="w-6 h-6" />
                   WhatsApp
                 </button>
 
-                {/* Twitter/X */}
                 <button
                   onClick={shareTwitter}
-                  className="py-4 px-3 rounded-xl bg-sky-500 text-white font-bold text-xs flex flex-col items-center gap-2 hover:bg-sky-600 transition shadow-md"
+                  className="py-4 px-2 rounded-xl bg-sky-500 text-white font-bold text-xs flex flex-col items-center gap-1 hover:bg-sky-600 transition shadow-md"
                 >
-                  <Twitter className="w-6 h-6" />
-                  Twitter
+                  <Globe className="w-6 h-6" />
+                  Twitter/X
                 </button>
 
-                {/* Copier le lien */}
                 <button
                   onClick={copyLink}
-                  className="py-4 px-3 rounded-xl bg-slate-700 text-white font-bold text-xs flex flex-col items-center gap-2 hover:bg-slate-800 transition shadow-md"
+                  className="py-4 px-2 rounded-xl bg-slate-700 text-white font-bold text-xs flex flex-col items-center gap-1 hover:bg-slate-800 transition shadow-md"
                 >
                   {copied ? <Check className="w-6 h-6" /> : <Copy className="w-6 h-6" />}
                   {copied ? "Copié !" : "Lien"}
                 </button>
               </div>
 
-              <div className="pt-4 border-t">
-                <p className="text-xs text-slate-500 text-center">
+              {imageUrl && (
+                <button
+                  onClick={downloadImage}
+                  className="w-full py-3 px-4 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-200 transition"
+                >
+                  <Download className="w-5 h-5" />
+                  Télécharger l'image
+                </button>
+              )}
+
+              <div className="pt-3 border-t">
+                <p className="text-xs text-slate-500 text-center italic">
                   {getShareMessage()}
                 </p>
               </div>
