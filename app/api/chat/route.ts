@@ -53,6 +53,4 @@ export async function POST(req: Request) {
     console.error("Erreur chat:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
-}git add .
-git commit -m "fix chat display + api"
-git push
+}
