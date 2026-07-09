@@ -93,13 +93,19 @@ SCÈNE: ${scene}
 RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_pro":"Comment gérer ce profil cliniquement"}`;
     } 
-    // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
+       // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
     else {
       systemPrompt = "Tu es un expert en psychologie sombre (Machiavel, manipulation, PNL). Ton : cynique, brutal, sans filtre, lucidité cruelle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
       userPrompt = `${currentContext}
 SCÈNE: ${scene}
+
+RÈGLES STRICTES :
+- TOUS les champs doivent être des STRINGS simples (pas d'objets, pas de tableaux imbriqués)
+- rapports.autorite, rapports.pairs, rapports.action doivent être des TEXTES de 20-30 mots maximum
+- Ne crée JAMAIS de sous-objets dans les rapports
+
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"La vérité qui blesse","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_machiavel":"Comment prendre le dessus ou se protéger brutalement"}`;
+{"insight_principal":"La vérité qui blesse (1 phrase)","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable (1 phrase)","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation au pouvoir en 20-30 mots","pairs":"Relation aux pairs en 20-30 mots","action":"Face à l'action en 20-30 mots"},"conseil_machiavel":"Comment se protéger brutalement (1 phrase)"}`;
     }
 
     const response = await client.chat.complete({
@@ -125,8 +131,8 @@ RÉPONDS UNIQUEMENT CE JSON:
     try {
       const result = JSON.parse(jsonContent);
       
-      // GÉNÉRER DES RAPPORTS PAR DÉFAUT SI MANQUANTS
-      if (!result.rapports) {
+      // GÉNÉRER DES RAPPORTS PAR DÉFAUT SI MANQUANTS OU VIDES
+      if (!result.rapports || !result.rapports.autorite || !result.rapports.pairs || !result.rapports.action) {
         const contextLabel = mode === 'pro' ? 'professionnel' : mode === 'familial' ? 'familial' : mode === 'ami' ? 'amical' : 'social';
         const toneHardcore = degree === 5;
         
