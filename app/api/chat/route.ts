@@ -17,7 +17,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Message manquant" }, { status: 400 });
     }
 
-    const systemPrompt = `Tu es une copine qui analyse les ragots. Tu continues la conversation de manière naturelle, drôle et directe. Tu te souviens de toute l'analyse précédente.`;
+    // Prompt pour des réponses courtes et cash
+    const systemPrompt = `Tu es une copine cash et directe. Tes réponses doivent être TRÈS COURTES (2 phrases max). Pas de blabla, va droit au but.`;
 
     const contextText = scene ? `SCÈNE ORIGINALE: ${scene}\n\nANALYSE INITIALE: ${JSON.stringify(initialAnalysis)}\n\n` : "";
 
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       { role: "system", content: systemPrompt },
       { 
         role: "user", 
-        content: `${contextText}C'est le contexte. Maintenant, réponds à ma question suivante en tenant compte de tout ça.`
+        content: `${contextText}C'est le contexte. Maintenant, réponds à ma question suivante.`
       },
       ...(conversationHistory || []).map((msg: any) => ({
         role: msg.sender === "user" ? "user" : "assistant",
@@ -35,10 +36,10 @@ export async function POST(req: Request) {
     ];
 
     const response = await client.chat.complete({
-      model: "mistral-large-latest",
+      model: "mistral-small-latest", // Modèle beaucoup plus rapide
       messages: messages,
       temperature: 0.7,
-      maxTokens: 1500
+      maxTokens: 200 // Réduit drastiquement le temps de génération
     });
 
     const aiResponse = response.choices?.[0]?.message?.content;
