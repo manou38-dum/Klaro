@@ -260,7 +260,7 @@ export default function ResultCard({ result }: any) {
           )}
 
           {/* CHAT INTERACTIF */}
-          {scene && <ChatSection scene={scene} initialAnalysis={result} />}
+<ChatSection scene={scene || ""} initialAnalysis={result} />
         </div>
 
         <div className="flex gap-3 mt-6">

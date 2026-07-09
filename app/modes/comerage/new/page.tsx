@@ -36,6 +36,7 @@ export default function NewComerageScene() {
       if (!response.ok) throw new Error(data.error || "Erreur lors de l'analyse");
 
       sessionStorage.setItem("selectedMode", "comerage");
+      sessionStorage.setItem("lastScene", scene);
       sessionStorage.setItem("analysisResult", JSON.stringify(data));
       router.push("/result");
     } catch (err) {
