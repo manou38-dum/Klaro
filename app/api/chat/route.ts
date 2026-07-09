@@ -17,8 +17,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Message manquant" }, { status: 400 });
     }
 
-    // Prompt pour des réponses courtes et cash
-    const systemPrompt = `Tu es une copine cash et directe. Tes réponses doivent être TRÈS COURTES (2 phrases max). Pas de blabla, va droit au but.`;
+    // Prompt équilibré : conversation naturelle mais concise
+    const systemPrompt = `Tu es une copine qui analyse les ragots. Tu réponds de manière naturelle et conversationnelle, comme un SMS entre potes. Tes réponses doivent faire 3-4 phrases maximum. Sois directe, cash, mais avec du contenu. Pas de blabla inutile, mais donne une vraie réponse complète.`;
 
     const contextText = scene ? `SCÈNE ORIGINALE: ${scene}\n\nANALYSE INITIALE: ${JSON.stringify(initialAnalysis)}\n\n` : "";
 
@@ -36,10 +36,10 @@ export async function POST(req: Request) {
     ];
 
     const response = await client.chat.complete({
-      model: "mistral-small-latest", // Modèle beaucoup plus rapide
+      model: "mistral-small-latest", // Modèle rapide
       messages: messages,
       temperature: 0.7,
-      maxTokens: 200 // Réduit drastiquement le temps de génération
+      maxTokens: 400 // Équilibre entre rapidité et contenu
     });
 
     const aiResponse = response.choices?.[0]?.message?.content;
