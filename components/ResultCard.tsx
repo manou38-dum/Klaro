@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Heart,
   Flame as Fire,
+  Send,
 } from "lucide-react";
 import ShareButton from "./ShareButton";
 import BigFiveGauge from "./BigFiveGauge";
@@ -29,15 +30,126 @@ const MODE_CONFIG: any = {
   hardcore: { icon: Flame, label: "Hardcore", gradient: "from-gray-900 to-black", ring: "ring-red-900", accent: "text-red-500" }
 };
 
-// Fonction pour nettoyer les astérisques Markdown
 const cleanMarkdown = (text: string) => {
   if (!text) return "";
   return text
-    .replace(/\*\*/g, "")  // Supprime les **
-    .replace(/\*/g, "")    // Supprime les *
-    .replace(/__/g, "")    // Supprime les __
-    .replace(/_/g, "");    // Supprime les _
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/__/g, "")
+    .replace(/_/g, "");
 };
+
+// Composant Chat pour le mode Comérage
+function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysis: any }) {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = { sender: "user", text: input };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scene,
+          initialAnalysis,
+          userMessage: input,
+          conversationHistory: messages
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.response) {
+        setMessages([...newMessages, { sender: "ai", text: data.response }]);
+      }
+    } catch (error) {
+      console.error("Erreur chat:", error);
+      setMessages([...newMessages, { sender: "ai", text: "Oups, y'a eu un bug. Réessaie !" }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="border-t-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50">
+      <div className="p-5">
+        <h3 className="font-black text-rose-800 flex items-center gap-2 mb-2 text-base">
+          <MessageCircle className="w-5 h-5" />
+          Pose tes questions ! 💬
+        </h3>
+        <p className="text-xs text-rose-700 mb-4">
+          Tu veux en savoir plus ? Demande des précisions ou ajoute des détails...
+        </p>
+
+        {/* Zone de messages */}
+        <div className="bg-white rounded-xl p-4 mb-3 max-h-80 overflow-y-auto space-y-3 border border-pink-200">
+          {messages.length === 0 ? (
+            <div className="text-center py-6">
+              <div className="text-4xl mb-2">🤔</div>
+              <p className="text-sm text-slate-500 italic">
+                Aucune question pour le moment...<br/>
+                Lance-toi, ta copine est là !
+              </p>
+            </div>
+          ) : (
+            messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`p-3 rounded-lg text-sm ${
+                  msg.sender === "user"
+                    ? "bg-pink-100 text-pink-900 ml-8 border border-pink-300"
+                    : "bg-rose-100 text-rose-900 mr-8 border border-rose-300"
+                }`}
+              >
+                <div className="font-bold text-xs mb-1 opacity-70">
+                  {msg.sender === "user" ? "👤 Toi" : "☕ Ta copine"}
+                </div>
+                {cleanMarkdown(msg.text)}
+              </div>
+            ))
+          )}
+          {isLoading && (
+            <div className="bg-rose-100 p-3 rounded-lg text-sm text-rose-900 mr-8 border border-rose-300">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full" />
+                <span className="font-bold text-xs">☕ Ta copine réfléchit...</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleSend()}
+            placeholder="Pose ta question..."
+            disabled={isLoading}
+            className="flex-1 px-3 py-2 border-2 border-pink-300 rounded-lg text-sm focus:outline-none focus:border-pink-500 disabled:opacity-50"
+          />
+          <button
+            onClick={handleSend}
+            disabled={isLoading || !input.trim()}
+            className="px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg text-sm font-bold hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-1"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ResultCard({ result }: any) {
   const [activeTab, setActiveTab] = useState("autorite");
@@ -69,6 +181,9 @@ export default function ResultCard({ result }: any) {
     const dynamiques = Array.isArray(result.dynamiques) ? result.dynamiques : [];
     const jeuxPouvoir = Array.isArray(result.jeux_de_pouvoir) ? result.jeux_de_pouvoir : [];
     const nonDits = Array.isArray(result.non_dits) ? result.non_dits : [];
+    
+    // Récupérer la scène depuis sessionStorage
+    const scene = sessionStorage.getItem("lastScene") || "";
 
     return (
       <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
@@ -143,6 +258,9 @@ export default function ResultCard({ result }: any) {
               </div>
             </div>
           )}
+
+          {/* CHAT INTERACTIF */}
+          {scene && <ChatSection scene={scene} initialAnalysis={result} />}
         </div>
 
         <div className="flex gap-3 mt-6">
