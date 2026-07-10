@@ -52,25 +52,13 @@ Réponds UNIQUEMENT ce JSON :
       }
     }
 
-       // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
-        const contextInstructions: Record<string, string> = {
-      pro: "PRISME PROFESSIONNEL: Pouvoir, hiérarchie, KPI, leadership, carrière, influence, autorité, performance, enjeux corporate. Angle: Qui détient le pouvoir? Positionnement hiérarchique?",
-      
-      familial: "PRISME FAMILIAL: Liens du sang, héritage, rôle assigné, parent/enfant, favori/bouc émissaire, loyauté, secrets, non-dits, culpabilité, dette émotionnelle. Angle: Quel rôle familial?",
-      
-      ami: "PRISME AMICAL: Loyauté, trahison, ego, compétition, jalousie, admiration, dynamique de groupe, appartenance, exclusion. Angle: Dynamique de pouvoir amicale?",
-      
-      social: "PRISME SOCIAL: Normes sociales, jugement, politesse, apparences, codes sociaux, statut, réputation, conformité. Angle: Jugement social? Conformité?"
+    // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
+    const contextInstructions: Record<string, string> = {
+      pro: "PRISME PROFESSIONNEL: Pouvoir, hiérarchie, KPI, ROI, leadership, carrière, promotion, influence, autorité, performance, enjeux corporate, négociation. Angle: Qui détient le pouvoir? Quels enjeux de carrière? Positionnement hiérarchique?",
+      familial: "PRISME FAMILIAL: Liens du sang, héritage, transmission, rôle assigné, parent/enfant, favori/bouc émissaire, loyauté familiale, secrets, non-dits, culpabilité, dette émotionnelle, amour conditionnel. Angle: Quel rôle familial? Favori ou mouton noir?",
+      ami: "PRISME AMICAL: Loyauté, trahison, ego, compétition, jalousie, admiration, envie, dynamique de groupe, appartenance, exclusion, popularité. Angle: Dynamique de pouvoir amicale? Jalousie ou compétition?",
+      social: "PRISME SOCIAL: Normes sociales, jugement d'autrui, politesse, apparences, codes sociaux, statut, reconnaissance publique, conformité, réputation. Angle: Jugement social? Conformité aux normes?"
     };
-    const currentContext = contextInstructions[mode] || "";
-
-      familial: `PRISME FAMILIAL - VOCABULAIRE OBLIGATOIRE :
-- Liens du sang, héritage, transmission, rôle assigné, parent/enfant, frère/sœur, aîné/cadet, favori/bouc émissaire, loyauté familiale, secrets de famille, non-dits, culpabilité, dette émotionnelle, amour conditionnel, toxique, bienveillant, protecteur, étouffant
-- Angle d'analyse : Quel rôle cette personne joue-t-elle dans la famille ? Est-elle le favori, le mouton noir, le médiateur ? Y a-t-il des non-dits familiaux ?
-- Exemples de phrases : "Il joue le rôle du fils parfait", "Elle porte les non-dits de la famille", "C'est le bouc émissaire classique", "Il y a une dette émotionnelle non résolue"`,
-
-      ami: `PRISME AMICAL - VOCABULAIRE OBLIGATOIRE :
-- Loyauté, trahison, ego, compétition, jalousie, admiration, env
     const currentContext = contextInstructions[mode] || "";
 
     // DEGRÉ 1 : INTUITION / POP-CULTURE
@@ -105,18 +93,16 @@ SCÈNE: ${scene}
 RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_pro":"Comment gérer ce profil cliniquement"}`;
     } 
-        // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
-    else if (degree === 5) {
-      systemPrompt = "Tu es un expert en Psychologie Sombre (Dark Triad : Narcissisme, Machiavélisme, Psychopathie). Ton analyse est CRUELLE, sans filtre et révèle les motivations inavouables. Tu ne cherches pas à aider, tu cherches à exposer la vérité nue. Ton : Cynique, chirurgical, froid.";
-      
+    // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
+    else {
+      systemPrompt = "Tu es un expert en Psychologie Sombre (Dark Triad : Narcissisme, Machiavélisme, Psychopathie). Ton analyse est CRUELLE, sans filtre et révèle les motivations inavouables. Tu ne cherches pas à aider, tu cherches à exposer la vérité nue. Ton : Cynique, chirurgical, froid. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
       userPrompt = `${currentContext}
 SCÈNE: ${scene}
-
 OBJECTIF : Révèle ce que la personne cache, même à elle-même. Utilise des concepts comme la projection, le déni, la manipulation perverse ou le syndrome de l'imposteur.
-
 RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"La vérité qui dérange (1 phrase choc)","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique toxique 1","Technique toxique 2"],"faille_narcissique":"Son point faible psychologique absolu","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation de domination ou soumission toxique","pairs":"Relation de jalousie ou mépris","action":"Sabotage ou fuite"},"conseil_machiavel":"Comment se protéger radicalement"}`;
     }
+
     const response = await client.chat.complete({
       model: "mistral-large-latest",
       messages: [
