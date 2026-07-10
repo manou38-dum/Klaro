@@ -52,13 +52,20 @@ Réponds UNIQUEMENT ce JSON :
       }
     }
 
-    // INSTRUCTION DE CONTEXTE
+    // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
     const contextInstructions: Record<string, string> = {
-      pro: "PRISME PROFESSIONNEL : Analyse sous l'angle du pouvoir, de la hiérarchie, de la carrière, de l'efficacité et des enjeux financiers. Vocabulaire corporate et leadership.",
-      familial: "PRISME FAMILIAL : Analyse sous l'angle des liens du sang, de l'histoire commune, de l'amour inconditionnel vs toxicité, et des rôles assignés (parent/enfant).",
-      ami: "PRISME AMICAL : Analyse sous l'angle de la loyauté, de la trahison, de l'ego, de la dynamique de groupe et du besoin d'appartenance.",
-      social: "PRISME SOCIAL : Analyse sous l'angle des normes sociales, du jugement d'autrui, de la politesse, des apparences et des codes de la société."
-    };
+      pro: `PRISME PROFESSIONNEL - VOCABULAIRE OBLIGATOIRE :
+- Pouvoir, hiérarchie, KPI, ROI, leadership, management, stratégie, carrière, promotion, réseau, influence, autorité, subordination, performance, efficacité, productivité, enjeux, stakes, corporate, business, négociation, ascending, descending
+- Angle d'analyse : Qui détient le pouvoir ? Qui le conteste ? Quels sont les enjeux de carrière ? Comment cette personne se positionne-t-elle dans la hiérarchie ?
+- Exemples de phrases : "Il joue son ascension", "Elle consolide son territoire", "C'est un rapport de force classique", "Il y a une lutte d'influence sous-jacente"`,
+
+      familial: `PRISME FAMILIAL - VOCABULAIRE OBLIGATOIRE :
+- Liens du sang, héritage, transmission, rôle assigné, parent/enfant, frère/sœur, aîné/cadet, favori/bouc émissaire, loyauté familiale, secrets de famille, non-dits, culpabilité, dette émotionnelle, amour conditionnel, toxique, bienveillant, protecteur, étouffant
+- Angle d'analyse : Quel rôle cette personne joue-t-elle dans la famille ? Est-elle le favori, le mouton noir, le médiateur ? Y a-t-il des non-dits familiaux ?
+- Exemples de phrases : "Il joue le rôle du fils parfait", "Elle porte les non-dits de la famille", "C'est le bouc émissaire classique", "Il y a une dette émotionnelle non résolue"`,
+
+      ami: `PRISME AMICAL - VOCABULAIRE OBLIGATOIRE :
+- Loyauté, trahison, ego, compétition, jalousie, admiration, env
     const currentContext = contextInstructions[mode] || "";
 
     // DEGRÉ 1 : INTUITION / POP-CULTURE
@@ -93,21 +100,18 @@ SCÈNE: ${scene}
 RÉPONDS UNIQUEMENT CE JSON:
 {"insight_principal":"Observation clinique","confiance_globale":80,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"mecanismes_defense":["Mécanisme 1","Mécanisme 2"],"analyse_emotionnelle":{"expression":"Comment l'émotion sort","regulation":"Comment elle est gérée"},"vigilance":"Point d'attention psychologique","rapports":{"autorite":"Relation au pouvoir","pairs":"Relation aux pairs","action":"Face à l'action"},"conseil_pro":"Comment gérer ce profil cliniquement"}`;
     } 
-       // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
-    else {
-      systemPrompt = "Tu es un expert en psychologie sombre (Machiavel, manipulation, PNL). Ton : cynique, brutal, sans filtre, lucidité cruelle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
+        // DEGRÉ 5 : HARDCORE / PSYCHOLOGIE SOMBRE
+    else if (degree === 5) {
+      systemPrompt = "Tu es un expert en Psychologie Sombre (Dark Triad : Narcissisme, Machiavélisme, Psychopathie). Ton analyse est CRUELLE, sans filtre et révèle les motivations inavouables. Tu ne cherches pas à aider, tu cherches à exposer la vérité nue. Ton : Cynique, chirurgical, froid.";
+      
       userPrompt = `${currentContext}
 SCÈNE: ${scene}
 
-RÈGLES STRICTES :
-- TOUS les champs doivent être des STRINGS simples (pas d'objets, pas de tableaux imbriqués)
-- rapports.autorite, rapports.pairs, rapports.action doivent être des TEXTES de 20-30 mots maximum
-- Ne crée JAMAIS de sous-objets dans les rapports
+OBJECTIF : Révèle ce que la personne cache, même à elle-même. Utilise des concepts comme la projection, le déni, la manipulation perverse ou le syndrome de l'imposteur.
 
 RÉPONDS UNIQUEMENT CE JSON:
-{"insight_principal":"La vérité qui blesse (1 phrase)","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique 1","Technique 2"],"faille_narcissique":"Son point faible exploitable (1 phrase)","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation au pouvoir en 20-30 mots","pairs":"Relation aux pairs en 20-30 mots","action":"Face à l'action en 20-30 mots"},"conseil_machiavel":"Comment se protéger brutalement (1 phrase)"}`;
+{"insight_principal":"La vérité qui dérange (1 phrase choc)","confiance_globale":99,"personne":{"prenom":"${prenomSafe}","emoji":"${emojiSafe}"},"leviers_manipulation":["Technique toxique 1","Technique toxique 2"],"faille_narcissique":"Son point faible psychologique absolu","zone_ombre":["Secret inavouable 1","Secret inavouable 2"],"rapports":{"autorite":"Relation de domination ou soumission toxique","pairs":"Relation de jalousie ou mépris","action":"Sabotage ou fuite"},"conseil_machiavel":"Comment se protéger radicalement"}`;
     }
-
     const response = await client.chat.complete({
       model: "mistral-large-latest",
       messages: [
