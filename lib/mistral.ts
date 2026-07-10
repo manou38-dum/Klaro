@@ -52,12 +52,16 @@ Réponds UNIQUEMENT ce JSON :
       }
     }
 
-    // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
+       // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
     const contextInstructions: Record<string, string> = {
-      pro: `PRISME PROFESSIONNEL - VOCABULAIRE OBLIGATOIRE :
-- Pouvoir, hiérarchie, KPI, ROI, leadership, management, stratégie, carrière, promotion, réseau, influence, autorité, subordination, performance, efficacité, productivité, enjeux, stakes, corporate, business, négociation, ascending, descending
-- Angle d'analyse : Qui détient le pouvoir ? Qui le conteste ? Quels sont les enjeux de carrière ? Comment cette personne se positionne-t-elle dans la hiérarchie ?
-- Exemples de phrases : "Il joue son ascension", "Elle consolide son territoire", "C'est un rapport de force classique", "Il y a une lutte d'influence sous-jacente"`,
+      pro: "PRISME PROFESSIONNEL: Pouvoir, hiérarchie, KPI, ROI, leadership, carrière, promotion, influence, autorité, performance, enjeux corporate, négociation. Angle: Qui détient le pouvoir? Quels enjeux de carrière? Positionnement hiérarchique?",
+      
+      familial: "PRISME FAMILIAL: Liens du sang, héritage, transmission, rôle assigné, parent/enfant, favori/bouc émissaire, loyauté familiale, secrets, non-dits, culpabilité, dette émotionnelle, amour conditionnel. Angle: Quel rôle familial? Favori ou mouton noir?",
+      
+      ami: "PRISME AMICAL: Loyauté, trahison, ego, compétition, jalousie, admiration, envie, dynamique de groupe, appartenance, exclusion, popularité. Angle: Dynamique de pouvoir amicale? Jalousie ou compétition?",
+      
+      social: "PRISME SOCIAL: Normes sociales, jugement d'autrui, politesse, apparences, codes sociaux, statut, reconnaissance publique, conformité, réputation. Angle: Jugement social? Conformité aux normes?"
+    };
 
       familial: `PRISME FAMILIAL - VOCABULAIRE OBLIGATOIRE :
 - Liens du sang, héritage, transmission, rôle assigné, parent/enfant, frère/sœur, aîné/cadet, favori/bouc émissaire, loyauté familiale, secrets de famille, non-dits, culpabilité, dette émotionnelle, amour conditionnel, toxique, bienveillant, protecteur, étouffant
