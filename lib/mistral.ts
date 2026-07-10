@@ -53,15 +53,16 @@ Réponds UNIQUEMENT ce JSON :
     }
 
        // INSTRUCTION DE CONTEXTE - VERSION CLIVANTE
-    const contextInstructions: Record<string, string> = {
-      pro: "PRISME PROFESSIONNEL: Pouvoir, hiérarchie, KPI, ROI, leadership, carrière, promotion, influence, autorité, performance, enjeux corporate, négociation. Angle: Qui détient le pouvoir? Quels enjeux de carrière? Positionnement hiérarchique?",
+        const contextInstructions: Record<string, string> = {
+      pro: "PRISME PROFESSIONNEL: Pouvoir, hiérarchie, KPI, leadership, carrière, influence, autorité, performance, enjeux corporate. Angle: Qui détient le pouvoir? Positionnement hiérarchique?",
       
-      familial: "PRISME FAMILIAL: Liens du sang, héritage, transmission, rôle assigné, parent/enfant, favori/bouc émissaire, loyauté familiale, secrets, non-dits, culpabilité, dette émotionnelle, amour conditionnel. Angle: Quel rôle familial? Favori ou mouton noir?",
+      familial: "PRISME FAMILIAL: Liens du sang, héritage, rôle assigné, parent/enfant, favori/bouc émissaire, loyauté, secrets, non-dits, culpabilité, dette émotionnelle. Angle: Quel rôle familial?",
       
-      ami: "PRISME AMICAL: Loyauté, trahison, ego, compétition, jalousie, admiration, envie, dynamique de groupe, appartenance, exclusion, popularité. Angle: Dynamique de pouvoir amicale? Jalousie ou compétition?",
+      ami: "PRISME AMICAL: Loyauté, trahison, ego, compétition, jalousie, admiration, dynamique de groupe, appartenance, exclusion. Angle: Dynamique de pouvoir amicale?",
       
-      social: "PRISME SOCIAL: Normes sociales, jugement d'autrui, politesse, apparences, codes sociaux, statut, reconnaissance publique, conformité, réputation. Angle: Jugement social? Conformité aux normes?"
+      social: "PRISME SOCIAL: Normes sociales, jugement, politesse, apparences, codes sociaux, statut, réputation, conformité. Angle: Jugement social? Conformité?"
     };
+    const currentContext = contextInstructions[mode] || "";
 
       familial: `PRISME FAMILIAL - VOCABULAIRE OBLIGATOIRE :
 - Liens du sang, héritage, transmission, rôle assigné, parent/enfant, frère/sœur, aîné/cadet, favori/bouc émissaire, loyauté familiale, secrets de famille, non-dits, culpabilité, dette émotionnelle, amour conditionnel, toxique, bienveillant, protecteur, étouffant
