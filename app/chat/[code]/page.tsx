@@ -114,8 +114,10 @@ export default function ChatRoomPage() {
   if (!room) return <div className="text-center py-12 text-red-500">Salon introuvable ou expiré.</div>;
 
   // Extraire les données d'analyse
-  const sceneText = room.analysis_snapshot?.scene || room.analysis_snapshot?.originalScene || "Non spécifiée";
-  const analysisText = room.analysis_snapshot?.analysis || room.analysis_snapshot?.summary || "Non disponible";
+  const sceneText = room.analysis_snapshot?.personne?.prenom 
+  ? `${room.analysis_snapshot.personne.emoji || ""} ${room.analysis_snapshot.personne.prenom}` 
+  : "Non spécifié";
+const analysisText = room.analysis_snapshot?.tensions || room.analysis_snapshot?.conseil || "Non disponible";
 
   return (
     <div className="max-w-md mx-auto h-screen flex flex-col bg-slate-50">
