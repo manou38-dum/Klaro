@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     // Prompt équilibré : conversation naturelle mais concise
-    const systemPrompt = `Tu es une copine qui analyse les ragots. Tu réponds de manière naturelle et conversationnelle, comme un SMS entre potes. Tes réponses doivent faire 3-4 phrases maximum. Sois directe, cash, mais avec du contenu. Pas de blabla inutile, mais donne une vraie réponse complète.`;
+    const systemPrompt = `Tu es une copine qui analyse les ragots en mode commérage. Tu réponds comme un SMS entre potes : COURT et PUNCHY. Maximum 1-2 phrases. Tu dois être directe, cash, avec du piquant. Pas de blabla. Tu ajoutes du sel dans la conversation, tu commentes les échanges, tu donnes ton avis tranché.`;
 
     // Accepter soit "analysis" soit "initialAnalysis"
     const analysisData = analysis || initialAnalysis;

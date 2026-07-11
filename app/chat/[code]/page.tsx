@@ -66,7 +66,7 @@ export default function ChatRoomPage() {
   }, [messages]);
 
   // Envoyer message
-    // Envoyer message
+      // Envoyer message
   const sendMessage = async (type: "user" | "ai") => {
     if (!input.trim() || !user || !room) return;
     const text = input.trim();
@@ -81,8 +81,15 @@ export default function ChatRoomPage() {
       message_type: "user",
     });
 
-    // Déclencher l'IA si demandé OU aléatoirement (1 fois sur 3)
-    const shouldTriggerAI = type === "ai" || Math.random() < 0.33;
+    // Déclencher l'IA si demandé explicitement OU si le message semble intéressant
+    const shouldTriggerAI = type === "ai" || (
+      text.length > 20 && // Message assez long
+      (text.includes('?') || // C'est une question
+       text.includes('!') || // C'est une exclamation forte
+       text.toLowerCase().includes('quoi') ||
+       text.toLowerCase().includes('pourquoi') ||
+       text.toLowerCase().includes('comment'))
+    );
 
     if (shouldTriggerAI) {
       // Petit délai pour faire plus naturel
@@ -115,7 +122,7 @@ export default function ChatRoomPage() {
       }, 1500); // 1.5 secondes de délai
     }
   };
-
+  
   if (loading) return <div className="text-center py-12">Chargement du salon...</div>;
     if (!isLoaded) return <div className="text-center py-12">Chargement...</div>;
   if (!user) {
