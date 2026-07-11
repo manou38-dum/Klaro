@@ -65,8 +65,7 @@ export default function ChatRoomPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Envoyer message
-      // Envoyer message
+    // Envoyer message
   const sendMessage = async (type: "user" | "ai") => {
     if (!input.trim() || !user || !room) return;
     const text = input.trim();
@@ -81,46 +80,34 @@ export default function ChatRoomPage() {
       message_type: "user",
     });
 
-    // Déclencher l'IA si demandé explicitement OU si le message semble intéressant
-    const shouldTriggerAI = type === "ai" || (
-      text.length > 20 && // Message assez long
-      (text.includes('?') || // C'est une question
-       text.includes('!') || // C'est une exclamation forte
-       text.toLowerCase().includes('quoi') ||
-       text.toLowerCase().includes('pourquoi') ||
-       text.toLowerCase().includes('comment'))
-    );
+    // L'IA répond TOUJOURS (pour tester)
+    setTimeout(async () => {
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scene: room.analysis_snapshot?.personne?.prenom || "",
+            analysis: room.analysis_snapshot,
+            question: text,
+          }),
+        });
 
-    if (shouldTriggerAI) {
-      // Petit délai pour faire plus naturel
-      setTimeout(async () => {
-        try {
-          const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              scene: room.analysis_snapshot?.personne?.prenom || "",
-              analysis: room.analysis_snapshot,
-              question: text,
-            }),
+        const data = await response.json();
+        
+        if (data.answer || data.response) {
+          await supabase.from("chat_messages").insert({
+            room_id: room.id,
+            user_id: "ai-mistral",
+            user_name: "IA Mistral",
+            message: data.answer || data.response,
+            message_type: "ai",
           });
-
-          const data = await response.json();
-          
-          if (data.answer || data.response) {
-            await supabase.from("chat_messages").insert({
-              room_id: room.id,
-              user_id: "ai-mistral",
-              user_name: "IA Mistral",
-              message: data.answer || data.response,
-              message_type: "ai",
-            });
-          }
-        } catch (error) {
-          console.error("Erreur IA:", error);
         }
-      }, 1500); // 1.5 secondes de délai
-    }
+      } catch (error) {
+        console.error("Erreur IA:", error);
+      }
+    }, 1000); // 1 seconde de délai
   };
   
   if (loading) return <div className="text-center py-12">Chargement du salon...</div>;
