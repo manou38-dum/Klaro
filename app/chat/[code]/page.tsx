@@ -66,17 +66,48 @@ export default function ChatRoomPage() {
   }, [messages]);
 
   // Envoyer message
-  const sendMessage = async () => {
+  const sendMessage = async (type: "user" | "ai") => {
     if (!input.trim() || !user || !room) return;
     const text = input.trim();
     setInput("");
 
+    // Insérer le message utilisateur
     await supabase.from("chat_messages").insert({
       room_id: room.id,
       user_id: user.id,
       user_name: user.fullName || user.username || "Anonyme",
       message: text,
+      message_type: "user",
     });
+
+    // Si c'est une question à l'IA, appeler Mistral
+    if (type === "ai") {
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            scene: room.analysis_snapshot?.scene || "",
+            analysis: room.analysis_snapshot?.analysis || "",
+            question: text,
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (data.answer) {
+          await supabase.from("chat_messages").insert({
+            room_id: room.id,
+            user_id: "ai-mistral",
+            user_name: "IA Mistral",
+            message: data.answer,
+            message_type: "ai",
+          });
+        }
+      } catch (error) {
+        console.error("Erreur IA:", error);
+      }
+    }
   };
 
   if (loading) return <div className="text-center py-12">Chargement du salon...</div>;
@@ -93,37 +124,72 @@ export default function ChatRoomPage() {
         </div>
       </div>
 
+      {/* Analyse épinglée */}
+{room.analysis_snapshot && (
+  <div className="bg-gradient-to-r from-violet-100 to-purple-100 p-4 border-b border-purple-200">
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-purple-700 font-bold text-sm">📌 Sujet de discussion</span>
+    </div>
+    <div className="text-sm text-slate-700">
+      <strong>Scène :</strong> {room.analysis_snapshot.scene || "Non spécifiée"}
+    </div>
+    <div className="text-sm text-slate-700 mt-2">
+      <strong>Analyse :</strong> {room.analysis_snapshot.analysis || "Non disponible"}
+    </div>
+  </div>
+)}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 ? (
           <p className="text-center text-slate-400 mt-8">Personne n'a encore parlé... Lance-toi !</p>
         ) : (
-          messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.user_id === user?.id ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.user_id === user?.id ? "bg-pink-500 text-white rounded-br-none" : "bg-white border border-slate-200 rounded-bl-none"}`}>
-                <div className="text-xs opacity-70 mb-1">{msg.user_name}</div>
-                {msg.message}
+          messages.map((msg) => {
+            const isAI = msg.message_type === "ai";
+            const isMe = msg.user_id === user?.id;
+            
+            return (
+              <div key={msg.id} className={`flex ${isMe && !isAI ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                  isAI 
+                    ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-bl-none" 
+                    : isMe 
+                      ? "bg-pink-500 text-white rounded-br-none" 
+                      : "bg-white border border-slate-200 rounded-bl-none"
+                }`}>
+                  <div className="text-xs opacity-70 mb-1">
+                    {isAI ? "🤖 IA" : msg.user_name}
+                  </div>
+                  {msg.message}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Input */}
+            {/* Input */}
       <div className="p-4 bg-white border-t border-slate-200 flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage("user")}
           placeholder="Écris ton message..."
           className="flex-1 px-4 py-2 border-2 border-pink-200 rounded-full focus:outline-none focus:border-pink-500"
         />
-        <button onClick={sendMessage} className="p-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition">
+        <button 
+          onClick={() => sendMessage("user")} 
+          className="p-3 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition"
+          title="Envoyer au groupe"
+        >
           <Send className="w-5 h-5" />
         </button>
+        <button 
+          onClick={() => sendMessage("ai")} 
+          className="p-3 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-full hover:brightness-110 transition"
+          title="Demander à l'IA"
+        >
+          🤖
+        </button>
       </div>
-    </div>
-  );
-}
