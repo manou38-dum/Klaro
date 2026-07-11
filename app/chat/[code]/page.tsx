@@ -8,7 +8,7 @@ import { Send, Users } from "lucide-react";
 
 export default function ChatRoomPage() {
   const { code } = useParams();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [room, setRoom] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
@@ -111,6 +111,12 @@ export default function ChatRoomPage() {
   };
 
   if (loading) return <div className="text-center py-12">Chargement du salon...</div>;
+    if (!isLoaded) return <div className="text-center py-12">Chargement...</div>;
+  if (!user) {
+    // Rediriger vers le login
+    window.location.href = `/sign-in?redirect_url=${encodeURIComponent(window.location.href)}`;
+    return <div className="text-center py-12">Connexion requise...</div>;
+  }
   if (!room) return <div className="text-center py-12 text-red-500">Salon introuvable ou expiré.</div>;
 
   // Extraire les données d'analyse
