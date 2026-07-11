@@ -66,6 +66,7 @@ export default function ChatRoomPage() {
   }, [messages]);
 
   // Envoyer message
+    // Envoyer message
   const sendMessage = async (type: "user" | "ai") => {
     if (!input.trim() || !user || !room) return;
     const text = input.trim();
@@ -80,33 +81,38 @@ export default function ChatRoomPage() {
       message_type: "user",
     });
 
-    // Si c'est une question à l'IA, appeler Mistral
-    if (type === "ai") {
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            scene: room.analysis_snapshot?.scene || room.analysis_snapshot?.originalScene || "",
-            analysis: room.analysis_snapshot,
-            question: text,
-          }),
-        });
+    // Déclencher l'IA si demandé OU aléatoirement (1 fois sur 3)
+    const shouldTriggerAI = type === "ai" || Math.random() < 0.33;
 
-        const data = await response.json();
-        
-        if (data.answer || data.response) {
-          await supabase.from("chat_messages").insert({
-            room_id: room.id,
-            user_id: "ai-mistral",
-            user_name: "IA Mistral",
-            message: data.answer || data.response,
-            message_type: "ai",
+    if (shouldTriggerAI) {
+      // Petit délai pour faire plus naturel
+      setTimeout(async () => {
+        try {
+          const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              scene: room.analysis_snapshot?.personne?.prenom || "",
+              analysis: room.analysis_snapshot,
+              question: text,
+            }),
           });
+
+          const data = await response.json();
+          
+          if (data.answer || data.response) {
+            await supabase.from("chat_messages").insert({
+              room_id: room.id,
+              user_id: "ai-mistral",
+              user_name: "IA Mistral",
+              message: data.answer || data.response,
+              message_type: "ai",
+            });
+          }
+        } catch (error) {
+          console.error("Erreur IA:", error);
         }
-      } catch (error) {
-        console.error("Erreur IA:", error);
-      }
+      }, 1500); // 1.5 secondes de délai
     }
   };
 
