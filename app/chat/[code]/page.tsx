@@ -125,19 +125,19 @@ export default function ChatRoomPage() {
       </div>
 
       {/* Analyse épinglée */}
-{room.analysis_snapshot && (
-  <div className="bg-gradient-to-r from-violet-100 to-purple-100 p-4 border-b border-purple-200">
-    <div className="flex items-center gap-2 mb-2">
-      <span className="text-purple-700 font-bold text-sm">📌 Sujet de discussion</span>
-    </div>
-    <div className="text-sm text-slate-700">
-      <strong>Scène :</strong> {room.analysis_snapshot.scene || "Non spécifiée"}
-    </div>
-    <div className="text-sm text-slate-700 mt-2">
-      <strong>Analyse :</strong> {room.analysis_snapshot.analysis || "Non disponible"}
-    </div>
-  </div>
-)}
+      {room.analysis_snapshot && (
+        <div className="bg-gradient-to-r from-violet-100 to-purple-100 p-4 border-b border-purple-200">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-purple-700 font-bold text-sm">📌 Sujet de discussion</span>
+          </div>
+          <div className="text-sm text-slate-700">
+            <strong>Scène :</strong> {room.analysis_snapshot.scene || "Non spécifiée"}
+          </div>
+          <div className="text-sm text-slate-700 mt-2">
+            <strong>Analyse :</strong> {room.analysis_snapshot.analysis || "Non disponible"}
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -168,7 +168,8 @@ export default function ChatRoomPage() {
         )}
         <div ref={messagesEndRef} />
       </div>
-            {/* Input */}
+
+      {/* Input */}
       <div className="p-4 bg-white border-t border-slate-200 flex gap-2">
         <input
           type="text"
@@ -193,3 +194,6 @@ export default function ChatRoomPage() {
           🤖
         </button>
       </div>
+    </div>
+  );
+}
