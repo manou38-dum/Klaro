@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import ShareButton from "./ShareButton";
 import BigFiveGauge from "./BigFiveGauge";
+import { supabase } from "@/lib/supabase";
 
 const MODE_CONFIG: any = {
   pro: { icon: Briefcase, label: "Professionnel", gradient: "from-blue-500 to-indigo-700", ring: "ring-blue-300", accent: "text-blue-600" },
@@ -259,8 +260,11 @@ export default function ResultCard({ result }: any) {
             </div>
           )}
 
-          {/* CHAT INTERACTIF */}
-<ChatSection scene={scene || ""} initialAnalysis={result} />
+                    {/* CHAT INTERACTIF */}
+          {scene && <ChatSection scene={scene} initialAnalysis={result} />}
+          
+          {/* BOUTON SALON TEMPS RÉEL */}
+          {scene && <InviteRoomButton scene={scene} analysis={result} />}
         </div>
 
         <div className="flex gap-3 mt-6">
@@ -378,6 +382,51 @@ export default function ResultCard({ result }: any) {
         <ShareButton result={result} />
         <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-slate-700 text-center font-bold">Nouvelle scène</a>
       </div>
+    </div>
+  );
+}
+function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any }) {
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const createRoom = async () => {
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const { data, error } = await supabase.from("chat_rooms").insert({
+      scene_id: "comerage",
+      invite_code: code,
+      analysis_snapshot: analysis,
+    }).select().single();
+
+    if (!error && data) setRoomId(data.id);
+  };
+
+  const shareLink = roomId ? `https://klaro.manoulabs.com/chat/${roomId}` : "";
+
+  return (
+    <div className="p-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl mb-4">
+      <h4 className="font-bold flex items-center gap-2 mb-2">👥 Décrypter à plusieurs ?</h4>
+      {!roomId ? (
+        <button onClick={createRoom} className="w-full py-2 bg-white text-purple-700 rounded-lg font-bold hover:brightness-95 transition">
+          Créer un salon temps réel
+        </button>
+      ) : (
+        <div className="space-y-2">
+          <p className="text-sm opacity-90">Salon créé ! Partage ce lien :</p>
+          <div className="flex gap-2">
+            <input readOnly value={shareLink} className="flex-1 px-3 py-2 rounded bg-white/20 text-sm text-white" />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(shareLink);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="px-3 py-2 bg-white text-purple-700 rounded font-bold text-sm"
+            >
+              {copied ? "Copié !" : "Copier"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
