@@ -54,7 +54,7 @@ export default function ShareButton({ result }: any) {
     link.click();
   };
 
-  const shareWhatsApp = () => {
+    const shareWhatsApp = () => {
     const mode = result?.mode || "pro";
     let message = "";
     
