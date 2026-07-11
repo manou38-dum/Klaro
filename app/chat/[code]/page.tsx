@@ -87,20 +87,20 @@ export default function ChatRoomPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            scene: room.analysis_snapshot?.scene || "",
-            analysis: room.analysis_snapshot?.analysis || "",
+            scene: room.analysis_snapshot?.scene || room.analysis_snapshot?.originalScene || "",
+            analysis: room.analysis_snapshot,
             question: text,
           }),
         });
 
         const data = await response.json();
         
-        if (data.answer) {
+        if (data.answer || data.response) {
           await supabase.from("chat_messages").insert({
             room_id: room.id,
             user_id: "ai-mistral",
             user_name: "IA Mistral",
-            message: data.answer,
+            message: data.answer || data.response,
             message_type: "ai",
           });
         }
@@ -112,6 +112,10 @@ export default function ChatRoomPage() {
 
   if (loading) return <div className="text-center py-12">Chargement du salon...</div>;
   if (!room) return <div className="text-center py-12 text-red-500">Salon introuvable ou expiré.</div>;
+
+  // Extraire les données d'analyse
+  const sceneText = room.analysis_snapshot?.scene || room.analysis_snapshot?.originalScene || "Non spécifiée";
+  const analysisText = room.analysis_snapshot?.analysis || room.analysis_snapshot?.summary || "Non disponible";
 
   return (
     <div className="max-w-md mx-auto h-screen flex flex-col bg-slate-50">
@@ -131,10 +135,10 @@ export default function ChatRoomPage() {
             <span className="text-purple-700 font-bold text-sm">📌 Sujet de discussion</span>
           </div>
           <div className="text-sm text-slate-700">
-            <strong>Scène :</strong> {room.analysis_snapshot.scene || "Non spécifiée"}
+            <strong>Scène :</strong> {sceneText}
           </div>
           <div className="text-sm text-slate-700 mt-2">
-            <strong>Analyse :</strong> {room.analysis_snapshot.analysis || "Non disponible"}
+            <strong>Analyse :</strong> {analysisText}
           </div>
         </div>
       )}

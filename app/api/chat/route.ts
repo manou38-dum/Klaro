@@ -11,16 +11,21 @@ const client = new Mistral({ apiKey });
 
 export async function POST(req: Request) {
   try {
-    const { scene, initialAnalysis, userMessage, conversationHistory } = await req.json();
+    const { scene, analysis, question, initialAnalysis, userMessage, conversationHistory } = await req.json();
 
-    if (!userMessage) {
+    // Accepter soit "question" soit "userMessage"
+    const message = question || userMessage;
+
+    if (!message) {
       return NextResponse.json({ error: "Message manquant" }, { status: 400 });
     }
 
     // Prompt équilibré : conversation naturelle mais concise
     const systemPrompt = `Tu es une copine qui analyse les ragots. Tu réponds de manière naturelle et conversationnelle, comme un SMS entre potes. Tes réponses doivent faire 3-4 phrases maximum. Sois directe, cash, mais avec du contenu. Pas de blabla inutile, mais donne une vraie réponse complète.`;
 
-    const contextText = scene ? `SCÈNE ORIGINALE: ${scene}\n\nANALYSE INITIALE: ${JSON.stringify(initialAnalysis)}\n\n` : "";
+    // Accepter soit "analysis" soit "initialAnalysis"
+    const analysisData = analysis || initialAnalysis;
+    const contextText = scene ? `SCÈNE ORIGINALE: ${scene}\n\nANALYSE INITIALE: ${JSON.stringify(analysisData)}\n\n` : "";
 
     const messages: any[] = [
       { role: "system", content: systemPrompt },
@@ -32,14 +37,14 @@ export async function POST(req: Request) {
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.text
       })),
-      { role: "user", content: userMessage }
+      { role: "user", content: message }
     ];
 
     const response = await client.chat.complete({
-      model: "mistral-small-latest", // Modèle rapide
+      model: "mistral-small-latest",
       messages: messages,
       temperature: 0.7,
-      maxTokens: 400 // Équilibre entre rapidité et contenu
+      maxTokens: 400
     });
 
     const aiResponse = response.choices?.[0]?.message?.content;
@@ -48,7 +53,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Pas de réponse" }, { status: 500 });
     }
 
-    return NextResponse.json({ response: aiResponse });
+    // Retourner les deux formats pour compatibilité
+    return NextResponse.json({ 
+      response: aiResponse,
+      answer: aiResponse 
+    });
 
   } catch (error) {
     console.error("Erreur chat:", error);
