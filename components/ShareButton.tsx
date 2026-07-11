@@ -12,7 +12,6 @@ export default function ShareButton({ result }: any) {
 
   const getShareMessage = () => {
     const mode = result?.mode || sessionStorage.getItem("selectedMode") || "pro";
-    const prenom = result?.personne?.prenom || "cette personne";
     const insight = result?.insight_principal || "une analyse intéressante";
     
     if (mode === "comerage") {
@@ -21,14 +20,13 @@ export default function ShareButton({ result }: any) {
     return `🎯 Analyse : "${insight}" - Découvrez Klaro !`;
   };
 
-  const shareUrl = "https://klaro-weld.vercel.app";
+  const shareUrl = "https://klaro.manoulabs.com";
 
   const generateImage = async () => {
     const element = document.getElementById("result-card");
     
     setIsGenerating(true);
     
-    // Tenter de générer l'image, mais ouvrir le menu même en cas d'échec
     try {
       if (element) {
         const canvas = await html2canvas(element, {
@@ -45,7 +43,7 @@ export default function ShareButton({ result }: any) {
     }
     
     setIsGenerating(false);
-    setShowPreview(true); // Toujours ouvrir le menu
+    setShowPreview(true);
   };
 
   const downloadImage = () => {
@@ -57,45 +55,43 @@ export default function ShareButton({ result }: any) {
   };
 
   const shareWhatsApp = () => {
-  const resultData = btoa(JSON.stringify(result));
-  const shareLink = `${shareUrl}/share?data=${resultData}`;
-  
-  let message = "";
-  
-  if (result.mode === "comerage") {
-    message = `🎭 *NOUVEAU COMÉRAGE DÉCRYPTÉ* ☕\n\n`;
-    message += `💡 *Insight :* ${result.insight_principal}\n\n`;
+    const mode = result?.mode || "pro";
+    let message = "";
     
-    if (result.dynamiques && result.dynamiques.length > 0) {
-      message += `👥 *Les acteurs :*\n`;
-      result.dynamiques.forEach((d: any) => {
-        message += `• ${d.acteur} (${d.role}) : ${d.analyse}\n`;
-      });
-      message += `\n`;
+    if (mode === "comerage") {
+      message = `🎭 NOUVEAU COMÉRAGE DÉCRYPTÉ ☕\n\n`;
+      message += `💡 Insight : ${result.insight_principal}\n\n`;
+      
+      if (result.dynamiques && result.dynamiques.length > 0) {
+        message += `👥 Les acteurs :\n`;
+        result.dynamiques.forEach((d: any) => {
+          message += `• ${d.acteur} (${d.role}) : ${d.analyse}\n`;
+        });
+        message += `\n`;
+      }
+      
+      if (result.conseil) {
+        message += `💬 Conseil de pote : ${result.conseil}\n\n`;
+      }
+      
+      message += `👉 Fais ton propre décryptage : ${shareUrl}/modes/comerage`;
+      
+    } else {
+      message = `🎯 ANALYSE KLARO\n\n`;
+      message += `👤 ${result.personne?.prenom || "Personne"}\n\n`;
+      message += `💡 ${result.insight_principal}\n\n`;
+      
+      if (result.conseil) {
+        message += `💬 Conseil : ${result.conseil}\n\n`;
+      }
+      
+      message += `👉 Fais ta propre analyse : ${shareUrl}/modes/${mode}`;
     }
-    
-    if (result.conseil) {
-      message += `💬 *Conseil de pote :* ${result.conseil}\n\n`;
-    }
-    
-    message += `👉 *Voir l'analyse complète :* ${shareLink}`;
-    
-  } else {
-    message = `🎯 *ANALYSE KLARO*\n\n`;
-    message += `👤 *${result.personne?.prenom || "Personne"}*\n\n`;
-    message += `💡 ${result.insight_principal}\n\n`;
-    
-    if (result.conseil) {
-      message += `💬 *Conseil :* ${result.conseil}\n\n`;
-    }
-    
-    message += `👉 *Voir l'analyse complète :* ${shareLink}`;
-  }
 
-  const encodedMessage = encodeURIComponent(message);
-  window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
-  setShowPreview(false);
-};
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, "_blank");
+    setShowPreview(false);
+  };
 
   const shareTwitter = () => {
     const text = encodeURIComponent(getShareMessage());
@@ -106,7 +102,12 @@ export default function ShareButton({ result }: any) {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      const mode = result?.mode || "pro";
+      const linkToCopy = mode === "comerage" 
+        ? `${shareUrl}/modes/comerage`
+        : `${shareUrl}/modes/${mode}`;
+      
+      await navigator.clipboard.writeText(linkToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
