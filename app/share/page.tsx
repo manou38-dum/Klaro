@@ -6,6 +6,15 @@ import ResultCard from "@/components/ResultCard";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+// Fonction pour décoder en base64 de manière sécurisée (gère Unicode)
+function decodeBase64(str: string): string {
+  try {
+    return decodeURIComponent(escape(atob(str)));
+  } catch {
+    return atob(str); // Fallback pour anciens liens
+  }
+}
+
 export default function SharePage() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<any>(null);
@@ -15,7 +24,7 @@ export default function SharePage() {
     const data = searchParams.get("data");
     if (data) {
       try {
-        const decoded = atob(data);
+        const decoded = decodeBase64(data);
         const parsed = JSON.parse(decoded);
         setResult(parsed);
       } catch (e) {
