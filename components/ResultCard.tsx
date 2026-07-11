@@ -391,13 +391,14 @@ function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any })
 
   const createRoom = async () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const { data, error } = await supabase.from("chat_rooms").insert({
+    const { data, error } = await supabase
+    .from("chat_rooms").insert({
       scene_id: "comerage",
       invite_code: code,
       analysis_snapshot: analysis,
     }).select().single();
 
-    if (!error && data) setRoomId(data.id);
+    if (!error && data) setRoomId(data.invite_code);
   };
 
   const shareLink = roomId ? `https://klaro.manoulabs.com/chat/${roomId}` : "";
