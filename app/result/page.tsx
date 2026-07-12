@@ -24,9 +24,12 @@ export default function ResultPage() {
     );
   }
 
+  // Extraire le mode du résultat
+  const mode = result.mode || "comerage";
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
-      <ResultCard result={result} />
+      <ResultCard result={result} mode={mode} isVisible={true} />
     </main>
   );
 }
