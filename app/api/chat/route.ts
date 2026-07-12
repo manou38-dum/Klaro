@@ -11,7 +11,7 @@ const client = new Mistral({ apiKey });
 
 export async function POST(req: Request) {
   try {
-    const { scene, analysis, question, initialAnalysis, userMessage, conversationHistory } = await req.json();
+    const { scene, analysis, question, mode, initialAnalysis, userMessage, conversationHistory } = await req.json();
 
     // Accepter soit "question" soit "userMessage"
     const message = question || userMessage;
@@ -21,7 +21,22 @@ export async function POST(req: Request) {
     }
 
     // Prompt équilibré : conversation naturelle mais concise
-    const systemPrompt = `Tu es une copine qui analyse les ragots en mode commérage. Tu réponds comme un SMS entre potes : COURT et PUNCHY. Maximum 1-2 phrases. Tu dois être directe, cash, avec du piquant. Pas de blabla. Tu ajoutes du sel dans la conversation, tu commentes les échanges, tu donnes ton avis tranché.`;
+    // Adapter le prompt selon le mode
+    const getSystemPrompt = (mode: string) => {
+      switch (mode) {
+        case "pro":
+          return `Tu es un consultant en dynamique de groupe professionnelle. Tu analyses les interactions avec un ton posé et analytique. Réponds en 1-2 phrases maximum, de manière concise et professionnelle. Tu donnes des insights utiles sur les dynamiques de pouvoir, les non-dits, et les stratégies relationnelles en entreprise.`;
+        case "familial":
+          return `Tu es un membre de la famille qui observe les dynamiques familiales avec bienveillance et humour. Tu réponds en 1-2 phrases maximum, avec un ton chaleureux mais perspicace. Tu commentes les tensions familiales, les non-dits, et les alliances avec empathie et un peu d'ironie affectueuse.`;
+        case "ami":
+          return `Tu es un(e) ami(e) proche qui analyse les ragots entre potes. Tu réponds en 1-2 phrases maximum, comme un SMS entre amis : décontracté, direct, avec de l'humour et des emojis. Tu donnes ton avis cash sur les situations sociales, les tensions, et les alliances.`;
+        case "social":
+        default:
+          return `Tu es une copine qui analyse les ragots en mode commérage. Tu réponds comme un SMS entre potes : COURT et PUNCHY. Maximum 1-2 phrases. Tu dois être directe, cash, avec du piquant. Pas de blabla. Tu ajoutes du sel dans la conversation, tu commentes les échanges, tu donnes ton avis tranché.`;
+      }
+    };
+
+    const systemPrompt = getSystemPrompt(mode || "social");
 
     // Accepter soit "analysis" soit "initialAnalysis"
     const analysisData = analysis || initialAnalysis;
