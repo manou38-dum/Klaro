@@ -91,6 +91,7 @@ export default function ChatRoomPage() {
               scene: room.analysis_snapshot?.personne?.prenom || "",
               analysis: room.analysis_snapshot,
               question: text,
+              mode: room.analysis_snapshot?.mode || "social",
             }),
           });
 

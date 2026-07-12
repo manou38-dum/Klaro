@@ -304,6 +304,9 @@ export default function ResultCard({ result }: any) {
             {result.ressenti_global && <p className="italic text-slate-600">{cleanMarkdown(String(result.ressenti_global))}</p>}
             {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}</p>}
           </div>
+          
+                      {/* BOUTON SALON TEMPS RÉEL */}
+          {scene && <InviteRoomButton scene={scene} analysis={result} />}
 
           <div className="flex gap-3 p-6">
             <ShareButton result={result} />
