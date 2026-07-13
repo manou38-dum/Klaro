@@ -8,7 +8,6 @@ import { MessageCircle, ArrowLeft, Sparkles } from "lucide-react";
 export default function NewComerageScene() {
   const router = useRouter();
   const [scene, setScene] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,9 +17,17 @@ export default function NewComerageScene() {
       return;
     }
 
-    setIsLoading(true);
     setError(null);
 
+    // Sauvegarder la scène et le mode immédiatement
+    sessionStorage.setItem("selectedMode", "comerage");
+    sessionStorage.setItem("lastScene", scene);
+    sessionStorage.setItem("isAnalyzing", "true"); // Flag pour déclencher l'animation
+    
+    // Rediriger IMMÉDIATEMENT vers la page de résultat (l'animation va démarrer)
+    router.push("/result");
+
+    // Lancer l'analyse en arrière-plan (pendant que l'animation se déroule)
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -35,14 +42,16 @@ export default function NewComerageScene() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Erreur lors de l'analyse");
 
-      sessionStorage.setItem("selectedMode", "comerage");
-      sessionStorage.setItem("lastScene", scene);
+      // Sauvegarder le résultat (la page /result va le détecter et l'afficher)
       sessionStorage.setItem("analysisResult", JSON.stringify(data));
-      router.push("/result");
+      sessionStorage.setItem("isAnalyzing", "false");
+      
+      // Forcer un re-render de la page /result pour afficher le résultat
+      window.dispatchEvent(new Event("analysisComplete"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
+      sessionStorage.setItem("isAnalyzing", "false");
+      sessionStorage.setItem("analysisError", err instanceof Error ? err.message : "Une erreur est survenue");
+      window.dispatchEvent(new Event("analysisComplete"));
     }
   };
 
@@ -90,20 +99,11 @@ export default function NewComerageScene() {
 
         <button
           type="submit"
-          disabled={scene.trim().length < 50 || isLoading}
+          disabled={scene.trim().length < 50}
           className="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold text-lg hover:brightness-110 transition disabled:bg-slate-200 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isLoading ? (
-            <>
-              <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
-              Analyse en cours...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5" />
-              Décrypter les dynamiques
-            </>
-          )}
+          <Sparkles className="w-5 h-5" />
+          Décrypter les dynamiques
         </button>
       </form>
     </div>
