@@ -290,6 +290,13 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
           {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}</p>}
         </div>
 
+                  {/* BOUTON SALON TEMPS RÉEL (ajouté pour comerage même si degré faible) */}
+          {mode === "comerage" && scene && (
+            <div className="pt-2">
+              <InviteRoomButton scene={scene} analysis={result} />
+            </div>
+          )}
+
         <div className="flex gap-3 p-6">
           <ShareButton result={result} />
           <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-center">Nouvelle scène</a>
