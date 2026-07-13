@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Send } from "lucide-react";
 
 // Configuration des modes
-const MODE_CONFIG = {
+   const MODE_CONFIG: Record<string, any> = {
   pro: {
     gradient: "from-slate-700 to-slate-900",
     ring: "ring-slate-400",
