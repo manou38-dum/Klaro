@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Send } from "lucide-react";
 
@@ -42,6 +42,58 @@ function cleanMarkdown(text: string): string {
   return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/_/g, "");
 }
 
+// Composant Confettis
+function Confetti() {
+  const colors = ["bg-violet-500", "bg-pink-500", "bg-amber-400", "bg-emerald-400", "bg-blue-500"];
+  const confettis = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    size: Math.random() * 8 + 4,
+  }));
+
+  return (
+    <>
+      {confettis.map((c) => (
+        <div
+          key={c.id}
+          className={`animate-confetti ${c.color} rounded-sm`}
+          style={{
+            left: `${c.left}%`,
+            width: `${c.size}px`,
+            height: `${c.size}px`,
+            animationDelay: `${c.delay}s`,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+// Composant Typewriter pour le titre
+function TypewriterTitle({ text, delay = 800 }: { text: string; delay?: number }) {
+  const [displayed, setDisplayed] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i <= text.length) {
+          setDisplayed(text.slice(0, i));
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 80);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [text, delay]);
+
+  return <span>{displayed}</span>;
+}
+
 // Section chat interactif
 function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysis: any }) {
   const [messages, setMessages] = useState<any[]>([]);
@@ -60,12 +112,7 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          scene,
-          initialAnalysis,
-          userMessage,
-          conversationHistory: messages,
-        }),
+        body: JSON.stringify({ scene, initialAnalysis, userMessage, conversationHistory: messages }),
       });
 
       const data = await response.json();
@@ -80,7 +127,7 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
   };
 
   return (
-    <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl mb-4">
+    <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl mb-4 animate-slide-up" style={{ animationDelay: "1.6s" }}>
       <h4 className="font-bold text-violet-700 mb-3">💬 Discuter de l'analyse</h4>
       <div className="space-y-2 mb-3 max-h-64 overflow-y-auto">
         {messages.length === 0 ? (
@@ -132,11 +179,7 @@ function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any })
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const { data, error } = await supabase
       .from("chat_rooms")
-      .insert({
-        scene_id: "comerage",
-        invite_code: code,
-        analysis_snapshot: analysis,
-      })
+      .insert({ scene_id: "comerage", invite_code: code, analysis_snapshot: analysis })
       .select()
       .single();
 
@@ -146,7 +189,7 @@ function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any })
   const shareLink = roomId ? `https://klaro.manoulabs.com/chat/${roomId}` : "";
 
   return (
-    <div className="p-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl mb-4">
+    <div className="p-4 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-2xl mb-4 animate-slide-up" style={{ animationDelay: "1.8s" }}>
       <h4 className="font-bold flex items-center gap-2 mb-2">👥 Décrypter à plusieurs ?</h4>
       {!roomId ? (
         <button onClick={createRoom} className="w-full py-2 bg-white text-purple-700 rounded-lg font-bold hover:brightness-95 transition">
@@ -192,88 +235,124 @@ function ShareButton({ result }: { result: any }) {
 }
 
 export default function ResultCard({ result, mode, isVisible }: { result: any; mode: string; isVisible: boolean }) {
-  // On sécurise la variable scene
   const scene = result.scene || result.originalScene || "";
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  useEffect(() => {
+    if (isVisible && result) {
+      setShowConfetti(true);
+      const timeout = setTimeout(() => setShowConfetti(false), 3500);
+      return () => clearTimeout(timeout);
+    }
+  }, [isVisible, result]);
 
   if (!result) return null;
 
-  // CORRECTION DÉFINITIVE : On affiche l'interface Comérage SI le mode est comerage, SANS condition de degré
+  // Mode comerage
   if (mode === "comerage") {
     return (
-      <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
-        <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${MODE_CONFIG.comerage.ring}`}>
-          <div className={`bg-gradient-to-br ${MODE_CONFIG.comerage.gradient} p-6 text-white text-center`}>
-            <div className="text-9xl mb-4">{result.personne?.emoji || "👥"}</div>
-            <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "La bande"}</h2>
-            <p className="text-lg">{cleanMarkdown(String(result.insight_principal))}</p>
-          </div>
-          
-          <div className="p-6 space-y-4 bg-slate-50">
-            {result.tensions && (
-              <div>
-                <h3 className="font-bold text-violet-700 mb-2">🔥 Tensions</h3>
-                <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.tensions))}</p>
+      <>
+        {showConfetti && <Confetti />}
+        <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
+          <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${MODE_CONFIG.comerage.ring}`}>
+            <div className={`bg-gradient-to-br ${MODE_CONFIG.comerage.gradient} p-6 text-white text-center`}>
+              {/* Emoji avec animation bounce-in */}
+              <div className="text-9xl mb-4 animate-bounce-in">
+                {result.personne?.emoji || "👥"}
               </div>
-            )}
-            {result.alliances && (
-              <div>
-                <h3 className="font-bold text-violet-700 mb-2">🤝 Alliances</h3>
-                <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.alliances))}</p>
-              </div>
-            )}
-            {result.conseil && (
-              <div>
-                <h3 className="font-bold text-violet-700 mb-2">💡 Conseil</h3>
-                <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.conseil))}</p>
-              </div>
-            )}
-          </div>
+              {/* Titre avec typewriter */}
+              <h2 className="text-4xl font-black mb-3 min-h-[2.5rem]">
+                <TypewriterTitle text={result.personne?.prenom || "La bande"} delay={600} />
+              </h2>
+              {/* Insight avec fade-in */}
+              <p className="text-lg animate-fade-in" style={{ animationDelay: "1.2s" }}>
+                {cleanMarkdown(String(result.insight_principal))}
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4 bg-slate-50">
+              {result.tensions && (
+                <div className="animate-slide-up" style={{ animationDelay: "1.4s" }}>
+                  <h3 className="font-bold text-violet-700 mb-2">🔥 Tensions</h3>
+                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.tensions))}</p>
+                </div>
+              )}
+              {result.alliances && (
+                <div className="animate-slide-up" style={{ animationDelay: "1.5s" }}>
+                  <h3 className="font-bold text-violet-700 mb-2">🤝 Alliances</h3>
+                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.alliances))}</p>
+                </div>
+              )}
+              {result.conseil && (
+                <div className="animate-slide-up" style={{ animationDelay: "1.6s" }}>
+                  <h3 className="font-bold text-violet-700 mb-2">💡 Conseil</h3>
+                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.conseil))}</p>
+                </div>
+              )}
+            </div>
 
-          <div className="p-6 space-y-4">
-            {scene && <ChatSection scene={scene} initialAnalysis={result} />}
-            {/* LE BOUTON EST ICI, IL S'AFFICHERA TOUJOURS EN MODE COMERAGE */}
-            <InviteRoomButton scene={scene} analysis={result} />
-          </div>
+            <div className="p-6 space-y-4">
+              {scene && <ChatSection scene={scene} initialAnalysis={result} />}
+              <InviteRoomButton scene={scene} analysis={result} />
+            </div>
 
-          <div className="flex gap-3 p-6">
-            <ShareButton result={result} />
-            <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-slate-700 text-center font-bold">Nouvelle scène</a>
+            <div className="flex gap-3 p-6 animate-slide-up" style={{ animationDelay: "2s" }}>
+              <ShareButton result={result} />
+              <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-slate-700 text-center font-bold">Nouvelle scène</a>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
-  // Interface pour les autres modes (Pro, Familial, Ami, Social)
+  // Autres modes
   const motsCles = (result.mots_cles && Array.isArray(result.mots_cles)) ? result.mots_cles : [];
   const modeConfig = MODE_CONFIG[mode] || MODE_CONFIG.pro;
 
   return (
-    <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
-      <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${modeConfig.ring}`}>
-        <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
-          <div className="text-9xl mb-4">{result.personne?.emoji || "👤"}</div>
-          <h2 className="text-4xl font-black mb-3">{result.personne?.prenom || "Inconnu"}</h2>
-          <p className="text-lg">{cleanMarkdown(String(result.insight_principal))}</p>
-        </div>
-        
-        <div className="p-6 space-y-4 bg-slate-50">
-          {motsCles.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {motsCles.map((mot: any, i: number) => (
-                <span key={i} className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">#{String(mot)}</span>
-              ))}
+    <>
+      {showConfetti && <Confetti />}
+      <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
+        <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${modeConfig.ring}`}>
+          <div className={`bg-gradient-to-br ${modeConfig.gradient} p-6 text-white text-center`}>
+            <div className="text-9xl mb-4 animate-bounce-in">
+              {result.personne?.emoji || "👤"}
             </div>
-          )}
-          {result.ressenti_global && <p className="italic text-slate-600">{cleanMarkdown(String(result.ressenti_global))}</p>}
-          {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}</p>}
-        </div>
+            <h2 className="text-4xl font-black mb-3 min-h-[2.5rem]">
+              <TypewriterTitle text={result.personne?.prenom || "Inconnu"} delay={600} />
+            </h2>
+            <p className="text-lg animate-fade-in" style={{ animationDelay: "1.2s" }}>
+              {cleanMarkdown(String(result.insight_principal))}
+            </p>
+          </div>
+          
+          <div className="p-6 space-y-4 bg-slate-50">
+            {motsCles.length > 0 && (
+              <div className="flex flex-wrap gap-2 animate-slide-up" style={{ animationDelay: "1.4s" }}>
+                {motsCles.map((mot: any, i: number) => (
+                  <span key={i} className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-sm">#{String(mot)}</span>
+                ))}
+              </div>
+            )}
+            {result.ressenti_global && (
+              <p className="italic text-slate-600 animate-slide-up" style={{ animationDelay: "1.5s" }}>
+                {cleanMarkdown(String(result.ressenti_global))}
+              </p>
+            )}
+            {result.conseil_rapide && (
+              <p className="text-slate-700 animate-slide-up" style={{ animationDelay: "1.6s" }}>
+                <strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}
+              </p>
+            )}
+          </div>
 
-        <div className="flex gap-3 p-6">
-          <ShareButton result={result} />
-          <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-center">Nouvelle scène</a>
+          <div className="flex gap-3 p-6 animate-slide-up" style={{ animationDelay: "1.8s" }}>
+            <ShareButton result={result} />
+            <a href="/" className="flex-1 py-3 px-4 rounded-2xl border-2 border-slate-300 text-center">Nouvelle scène</a>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
