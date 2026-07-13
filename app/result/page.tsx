@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 import ResultCard from "@/components/ResultCard";
-import { Brain, Scan, Users, MessageSquare } from "lucide-react";
+import { Brain, Scan, Users, MessageSquare, Sparkles } from "lucide-react";
 
 export default function ResultPage() {
   const [result, setResult] = useState<any>(null);
   const [loadingStep, setLoadingStep] = useState(0);
 
-  // Séquence d'animation de l'IA
+  // Séquence d'animation de l'IA (plus visible et dynamique)
   const loadingMessages = [
-    { text: "Analyse des dynamiques de groupe...", icon: <Users className="w-16 h-16 text-violet-500" /> },
-    { text: "Décodage des non-dits et tensions...", icon: <Scan className="w-16 h-16 text-violet-500" /> },
-    { text: "Génération du profil psychologique...", icon: <Brain className="w-16 h-16 text-violet-500" /> },
-    { text: "Finalisation de l'analyse...", icon: <MessageSquare className="w-16 h-16 text-violet-500" /> },
+    { text: "Analyse des dynamiques de groupe...", icon: <Users className="w-20 h-20 text-violet-400" /> },
+    { text: "Décodage des non-dits et tensions...", icon: <Scan className="w-20 h-20 text-violet-400" /> },
+    { text: "Génération du profil psychologique...", icon: <Brain className="w-20 h-20 text-violet-400" /> },
+    { text: "Finalisation de l'analyse...", icon: <Sparkles className="w-20 h-20 text-violet-400" /> },
   ];
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function ResultPage() {
         setLoadingStep((prev) => (prev + 1) % loadingMessages.length);
       }, 600);
 
-      // On affiche le résultat après 2.4 secondes (4 étapes x 600ms) pour l'effet "IA qui travaille"
+      // On affiche le résultat après 2.4 secondes pour l'effet "IA qui travaille"
       const timeout = setTimeout(() => {
         clearInterval(interval);
         setResult(JSON.parse(storedResult));
@@ -37,39 +37,46 @@ export default function ResultPage() {
     }
   }, []);
 
-  // Écran d'animation "Scan IA"
+  // Écran d'animation "Scan IA" (Mode sombre pour effet dramatique)
   if (!result) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-white px-4">
-        <div className="relative mb-8">
-          {/* Effet de radar / ping */}
-          <div className="absolute inset-0 bg-violet-500 rounded-full opacity-20 animate-ping" />
-          <div className="absolute inset-0 bg-violet-500 rounded-full opacity-40 animate-pulse" />
-          
-          {/* Icône centrale */}
-          <div className="relative bg-white p-6 rounded-full shadow-2xl ring-4 ring-violet-100">
-            <div className="animate-pulse">
-              {loadingMessages[loadingStep].icon}
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-900 px-4 relative overflow-hidden">
+        {/* Effet de fond lumineux (Glow) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-600 rounded-full blur-[100px] opacity-30 animate-pulse" />
+        
+        <div className="relative z-10 flex flex-col items-center space-y-8 max-w-md w-full">
+          {/* Cercle pulsant avec icône */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-violet-500 rounded-full opacity-30 animate-ping" />
+            <div className="absolute inset-0 bg-violet-500 rounded-full opacity-20 animate-pulse scale-110" />
+            <div className="relative bg-slate-800 p-8 rounded-full shadow-2xl ring-2 ring-violet-500/50 flex items-center justify-center">
+              <div key={loadingStep} className="animate-bounce">
+                {loadingMessages[loadingStep].icon}
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="text-center space-y-4 max-w-md w-full">
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-            Klaro IA analyse la scène
-          </h2>
           
-          {/* Texte qui change avec transition douce */}
-          <p key={loadingStep} className="text-violet-600 font-semibold text-lg animate-fade-in-up">
-            {loadingMessages[loadingStep].text}
-          </p>
-          
-          {/* Barre de progression stylisée */}
-          <div className="w-full bg-slate-200 rounded-full h-2.5 mt-8 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-violet-500 to-purple-600 h-2.5 rounded-full transition-all duration-500 ease-out shadow-lg"
-              style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%` }}
-            />
+          <div className="text-center space-y-4 w-full">
+            <h2 className="text-3xl font-black text-white tracking-tight uppercase">
+              Klaro IA
+            </h2>
+            
+            {/* Texte qui change avec une clé pour forcer le re-rendu et l'animation */}
+            <p key={loadingStep} className="text-violet-300 font-semibold text-xl transition-all duration-300 ease-in-out transform translate-y-0 opacity-100">
+              {loadingMessages[loadingStep].text}
+            </p>
+            
+            {/* Barre de progression stylisée et lumineuse */}
+            <div className="w-full bg-slate-800 rounded-full h-3 mt-8 overflow-hidden ring-1 ring-slate-700">
+              <div 
+                className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 h-3 rounded-full transition-all duration-500 ease-out shadow-[0_0_15px_rgba(139,92,246,0.7)]"
+                style={{ width: `${((loadingStep + 1) / loadingMessages.length) * 100}%` }}
+              />
+            </div>
+            
+            <p className="text-slate-500 text-sm mt-4">
+              Analyse en cours... {Math.round(((loadingStep + 1) / loadingMessages.length) * 100)}%
+            </p>
           </div>
         </div>
       </div>
@@ -83,5 +90,5 @@ export default function ResultPage() {
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-8 px-4">
       <ResultCard result={result} mode={mode} isVisible={true} />
     </main>
-  );
+      );
 }
