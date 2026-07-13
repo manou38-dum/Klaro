@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Send } from "lucide-react";
 
 // Configuration des modes
-   const MODE_CONFIG: Record<string, any> = {
+const MODE_CONFIG: Record<string, any> = {
   pro: {
     gradient: "from-slate-700 to-slate-900",
     ring: "ring-slate-400",
@@ -69,9 +69,8 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
       });
 
       const data = await response.json();
-      
-      if (data.response) {
-        setMessages(prev => [...prev, { sender: "ai", text: data.response }]);
+      if (data.response || data.answer) {
+        setMessages(prev => [...prev, { sender: "ai", text: data.response || data.answer }]);
       }
     } catch (error) {
       console.error("Erreur chat:", error);
@@ -83,7 +82,6 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
   return (
     <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl mb-4">
       <h4 className="font-bold text-violet-700 mb-3">💬 Discuter de l'analyse</h4>
-      
       <div className="space-y-2 mb-3 max-h-64 overflow-y-auto">
         {messages.length === 0 ? (
           <p className="text-sm text-slate-500 italic">Pose-moi une question sur l'analyse...</p>
@@ -108,7 +106,6 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
           </div>
         )}
       </div>
-
       <div className="flex gap-2">
         <input
           type="text"
@@ -118,10 +115,7 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
           placeholder="Pose ta question..."
           className="flex-1 px-4 py-2 border-2 border-violet-200 rounded-full focus:outline-none focus:border-violet-500"
         />
-        <button 
-          onClick={sendMessage} 
-          className="p-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition"
-        >
+        <button onClick={sendMessage} className="p-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition">
           <Send className="w-5 h-5" />
         </button>
       </div>
@@ -129,7 +123,7 @@ function ChatSection({ scene, initialAnalysis }: { scene: string; initialAnalysi
   );
 }
 
-// Bouton salon temps réel (uniquement pour comerage)
+// Bouton salon temps réel
 function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any }) {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -137,11 +131,14 @@ function InviteRoomButton({ scene, analysis }: { scene: string; analysis: any })
   const createRoom = async () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const { data, error } = await supabase
-    .from("chat_rooms").insert({
-      scene_id: "comerage",
-      invite_code: code,
-      analysis_snapshot: analysis,
-    }).select().single();
+      .from("chat_rooms")
+      .insert({
+        scene_id: "comerage",
+        invite_code: code,
+        analysis_snapshot: analysis,
+      })
+      .select()
+      .single();
 
     if (!error && data) setRoomId(data.invite_code);
   };
@@ -184,20 +181,10 @@ function ShareButton({ result }: { result: any }) {
 
   return (
     <div className="flex gap-2">
-      <a 
-        href={`https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex-1 py-2 px-4 bg-green-500 text-white rounded-xl font-bold text-sm hover:bg-green-600 transition"
-      >
+      <a href={`https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-2 px-4 bg-green-500 text-white rounded-xl font-bold text-sm hover:bg-green-600 transition text-center">
         WhatsApp
       </a>
-      <a 
-        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex-1 py-2 px-4 bg-blue-500 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition"
-      >
+      <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer" className="flex-1 py-2 px-4 bg-blue-500 text-white rounded-xl font-bold text-sm hover:bg-blue-600 transition text-center">
         Twitter
       </a>
     </div>
@@ -205,12 +192,13 @@ function ShareButton({ result }: { result: any }) {
 }
 
 export default function ResultCard({ result, mode, isVisible }: { result: any; mode: string; isVisible: boolean }) {
-  const scene = result.scene || "";
+  // On sécurise la variable scene
+  const scene = result.scene || result.originalScene || "";
 
   if (!result) return null;
 
-  // Mode comerage avec degré > 2
-  if (mode === "comerage" && result.degree > 2) {
+  // CORRECTION DÉFINITIVE : On affiche l'interface Comérage SI le mode est comerage, SANS condition de degré
+  if (mode === "comerage") {
     return (
       <div id="result-card" className={`max-w-md mx-auto ${isVisible ? "opacity-100" : "opacity-0"} transition-opacity`}>
         <div className={`rounded-3xl shadow-2xl overflow-hidden bg-white ring-4 ${MODE_CONFIG.comerage.ring}`}>
@@ -227,14 +215,12 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
                 <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.tensions))}</p>
               </div>
             )}
-            
             {result.alliances && (
               <div>
                 <h3 className="font-bold text-violet-700 mb-2">🤝 Alliances</h3>
                 <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.alliances))}</p>
               </div>
             )}
-            
             {result.conseil && (
               <div>
                 <h3 className="font-bold text-violet-700 mb-2">💡 Conseil</h3>
@@ -244,11 +230,9 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
           </div>
 
           <div className="p-6 space-y-4">
-            {/* CHAT INTERACTIF */}
             {scene && <ChatSection scene={scene} initialAnalysis={result} />}
-            
-            {/* BOUTON SALON TEMPS RÉEL */}
-            {scene && <InviteRoomButton scene={scene} analysis={result} />}
+            {/* LE BOUTON EST ICI, IL S'AFFICHERA TOUJOURS EN MODE COMERAGE */}
+            <InviteRoomButton scene={scene} analysis={result} />
           </div>
 
           <div className="flex gap-3 p-6">
@@ -260,13 +244,8 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
     );
   }
 
-  // Autres modes ou degré faible
-  const traits = (result.traits && Array.isArray(result.traits)) ? result.traits : [];
-  const zoneOmbre = (result.zone_ombre && Array.isArray(result.zone_ombre)) ? result.zone_ombre : [];
+  // Interface pour les autres modes (Pro, Familial, Ami, Social)
   const motsCles = (result.mots_cles && Array.isArray(result.mots_cles)) ? result.mots_cles : [];
-  const rapports = result.rapports || { autorite: "", pairs: "", action: "" };
-  const degree = result.degree || 3;
-
   const modeConfig = MODE_CONFIG[mode] || MODE_CONFIG.pro;
 
   return (
@@ -289,13 +268,6 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
           {result.ressenti_global && <p className="italic text-slate-600">{cleanMarkdown(String(result.ressenti_global))}</p>}
           {result.conseil_rapide && <p className="text-slate-700"><strong>Conseil:</strong> {cleanMarkdown(String(result.conseil_rapide))}</p>}
         </div>
-
-                  {/* BOUTON SALON TEMPS RÉEL (ajouté pour comerage même si degré faible) */}
-          {mode === "comerage" && scene && (
-            <div className="pt-2">
-              <InviteRoomButton scene={scene} analysis={result} />
-            </div>
-          )}
 
         <div className="flex gap-3 p-6">
           <ShareButton result={result} />
