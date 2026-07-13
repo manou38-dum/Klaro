@@ -10,49 +10,18 @@ export default function NewComerageScene() {
   const [scene, setScene] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (scene.trim().length < 50) {
       setError("Raconte-moi un peu plus de détails...");
       return;
     }
 
-    setError(null);
-
-    // Sauvegarder la scène et le mode immédiatement
-    sessionStorage.setItem("selectedMode", "comerage");
-    sessionStorage.setItem("lastScene", scene);
-    sessionStorage.setItem("isAnalyzing", "true"); // Flag pour déclencher l'animation
-    
-    // Rediriger IMMÉDIATEMENT vers la page de résultat (l'animation va démarrer)
+    // Sauvegarder la scène et rediriger IMMÉDIATEMENT
+    sessionStorage.setItem("pendingScene", scene.trim());
+    sessionStorage.setItem("pendingMode", "comerage");
+    sessionStorage.removeItem("analysisResult");
     router.push("/result");
-
-    // Lancer l'analyse en arrière-plan (pendant que l'animation se déroule)
-    try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          scene: scene.trim(), 
-          context: "comerage",
-          degree: 3
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Erreur lors de l'analyse");
-
-      // Sauvegarder le résultat (la page /result va le détecter et l'afficher)
-      sessionStorage.setItem("analysisResult", JSON.stringify(data));
-      sessionStorage.setItem("isAnalyzing", "false");
-      
-      // Forcer un re-render de la page /result pour afficher le résultat
-      window.dispatchEvent(new Event("analysisComplete"));
-    } catch (err) {
-      sessionStorage.setItem("isAnalyzing", "false");
-      sessionStorage.setItem("analysisError", err instanceof Error ? err.message : "Une erreur est survenue");
-      window.dispatchEvent(new Event("analysisComplete"));
-    }
   };
 
   return (
@@ -72,31 +41,22 @@ export default function NewComerageScene() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-bold text-slate-700 mb-2">
-            La scène 🎭
-          </label>
+          <label className="block text-sm font-bold text-slate-700 mb-2">La scène 🎭</label>
           <textarea
             value={scene}
             onChange={(e) => setScene(e.target.value)}
-            placeholder="Ex: Hier soir, Sarah a organisé un dîner. Elle a passé la soirée à faire des sous-entendus sur la relation de Marc et Julie. Thomas a essayé de calmer le jeu mais on sentait qu'il était mal à l'aise..."
+            placeholder="Ex: Hier soir, Sarah a organisé un dîner..."
             rows={8}
             className="w-full rounded-xl border-2 border-slate-200 p-4 text-base focus:border-pink-500 outline-none transition resize-none"
             required
           />
         </div>
-
         <div className="flex justify-between items-center text-sm">
           <span className={scene.length < 50 ? "text-amber-500" : "text-emerald-500"}>
             {scene.length < 50 ? `${50 - scene.length} caractères min.` : "✅ Prêt à décrypter"}
           </span>
         </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
-            {error}
-          </div>
-        )}
-
+        {error && <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">{error}</div>}
         <button
           type="submit"
           disabled={scene.trim().length < 50}
