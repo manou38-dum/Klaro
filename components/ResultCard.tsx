@@ -41,14 +41,20 @@ const MODE_CONFIG: Record<string, any> = {
 function cleanMarkdown(text: string): string {
   return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/_/g, "");
 }
-// Fonction de sécurité pour éviter les [object Object]
+// Fonction de sécurité ULTIME pour éviter les [object Object]
 function formatContent(content: any): string {
   if (!content) return "";
   if (typeof content === "string") return cleanMarkdown(content);
-  if (Array.isArray(content)) return content.map(cleanMarkdown).join(" • ");
+  if (Array.isArray(content)) return content.map(cleanMarkdown).join("\n• ");
+  
+  // Si c'est un objet, on essaie d'extraire le texte caché dedans
+  if (typeof content === "object") {
+    const text = content.text || content.conseil || content.message || Object.values(content)[0];
+    return cleanMarkdown(String(text));
+  }
+  
   return cleanMarkdown(String(content));
 }
-
 // Composant Confettis
 function Confetti() {
   const colors = ["bg-violet-500", "bg-pink-500", "bg-amber-400", "bg-emerald-400", "bg-blue-500"];

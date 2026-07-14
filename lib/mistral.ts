@@ -43,11 +43,15 @@ export async function analyzeSituation(
 
       systemPrompt = `Tu es un expert en dynamiques de groupe et ragots. ${baseRule}${specificTone}Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.`;
       
-      userPrompt = `Analyse cette scène : ${scene.substring(0, 800)}
-RÈGLES JSON STRICTES : 
-- "prenom" doit être le NOM DU PERSONNAGE CENTRAL de la scène (ex: "Sarah", "Le Boss", "Marc"), JAMAIS "La bande" ou "Inconnu" sauf si vraiment aucun nom n'est donné.
-- "tensions", "non_dits", "jeux_de_pouvoir" doivent être des TABLEAUX de phrases courtes (ex: ["Phrase 1", "Phrase 2"]).
-- "alliances" et "conseil" doivent être des CHAÎNES DE CARACTÈRES (texte simple).
+           userPrompt = `Analyse cette scène : ${scene.substring(0, 800)}
+
+RÈGLES JSON STRICTES ET OBLIGATOIRES :
+1. TITRE : Le champ "prenom" DOIT être le PRÉNOM du personnage principal de la scène (ex: "Bob", "Sarah"). S'il n'y a vraiment aucun nom, écris "Le Groupe". N'ÉCRIS JAMAIS "La bande" ou "Inconnu".
+2. FORMAT : "tensions", "non_dits" et "jeux_de_pouvoir" doivent être des TABLEAUX de phrases (ex: ["Phrase 1", "Phrase 2"]).
+3. FORMAT : "alliances" et "conseil" doivent être des CHAÎNES DE CARACTÈRES (texte simple, pas d'objet JSON imbriqué !).
+
+Réponds UNIQUEMENT ce JSON :
+{"insight_principal":"Phrase choc résumant la scène","confiance_globale":90,"personne":{"prenom":"PRÉNOM DU PERSONNAGE PRINCIPAL","emoji":"🍔"},"dynamiques":[{"acteur":"Nom","genre":"homme/femme","role":"Son rôle","analyse":"Analyse de son comportement"}],"jeux_de_pouvoir":["Jeu 1","Jeu 2"],"non_dits":["Non-dit 1","Non-dit 2"],"alliances":"Description textuelle simple des alliances","tensions":["Tension 1","Tension 2"],"conseil":"Conseil textuel simple et direct, sans objet JSON"} `;
 
 Réponds UNIQUEMENT ce JSON :
 {"insight_principal":"Phrase choc résumant la scène","confiance_globale":90,"personne":{"prenom":"Nom du personnage central","emoji":"☕"},"dynamiques":[{"acteur":"Nom du personnage","genre":"homme/femme","role":"Son rôle","analyse":"Analyse de son comportement"}],"jeux_de_pouvoir":["Jeu 1","Jeu 2"],"non_dits":["Non-dit 1","Non-dit 2"],"alliances":"Description textuelle des alliances","tensions":["Tension 1","Tension 2"],"conseil":"Conseil textuel direct et actionnable"}`;
@@ -72,7 +76,7 @@ Réponds UNIQUEMENT ce JSON :
         return { error: "Erreur lors de l'analyse" };
       }
     }
-    
+
     // ==========================================
     // AUTRES MODES (Pro, Familial, Ami, Social)
     // ==========================================
