@@ -1,64 +1,31 @@
 import Link from "next/link";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkles, ArrowRight } from "lucide-react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 
 const CONTEXTS = [
-  {
-    id: "comerage",
-    label: "Comérage",
-    icon: "☕",
-    gradient: "from-pink-500 via-rose-500 to-red-500",
-    description: "Ragots & dynamiques",
-    featured: true
-  },
-  {
-    id: "pro",
-    label: "Pro",
-    icon: "💼",
-    gradient: "from-blue-500 via-indigo-500 to-purple-500",
-    description: "Réunions & management"
-  },
-  {
-    id: "familial",
-    label: "Famille",
-    icon: "🏠",
-    gradient: "from-amber-500 via-orange-500 to-red-500",
-    description: "Couple & fratrie"
-  },
-  {
-    id: "ami",
-    label: "Amis",
-    icon: "🎉",
-    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-    description: "Soirées & sorties"
-  },
-  {
-    id: "social",
-    label: "Social",
-    icon: "🌍",
-    gradient: "from-violet-500 via-purple-500 to-fuchsia-500",
-    description: "Voisins & inconnus"
-  }
+  { id: "comerage", label: "Comérage", icon: "☕", color: "bg-rose-100", border: "border-rose-400", text: "text-rose-700", featured: true },
+  { id: "pro", label: "Pro", icon: "💼", color: "bg-sky-100", border: "border-sky-400", text: "text-sky-700" },
+  { id: "familial", label: "Famille", icon: "🏠", color: "bg-amber-100", border: "border-amber-400", text: "text-amber-700" },
+  { id: "ami", label: "Amis", icon: "🎉", color: "bg-emerald-100", border: "border-emerald-400", text: "text-emerald-700" },
+  { id: "social", label: "Social", icon: "🌍", color: "bg-violet-100", border: "border-violet-400", text: "text-violet-700" }
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-100 via-pink-100 to-amber-100 pb-20">
-      {/* Header compact */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/30 shadow-sm">
+    <div className="min-h-screen bg-[#FAFAFA] pb-20 font-sans">
+      {/* Header Compact */}
+      <header className="sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b-2 border-black">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-br from-violet-600 via-purple-600 to-pink-600 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-violet-500/30">
+            <div className="w-9 h-9 bg-black text-white rounded-lg flex items-center justify-center font-black text-lg border-2 border-black shadow-[3px_3px_0px_0px_rgba(139,92,246,1)]">
               K
             </div>
-            <span className="text-xl font-black bg-gradient-to-r from-violet-600 to-pink-600 bg-clip-text text-transparent">
-              Klaro
-            </span>
+            <span className="text-xl font-black text-black tracking-tight">Klaro</span>
           </Link>
           
           <div className="flex items-center gap-3">
             <SignedIn>
-              <Link href="/dashboard" className="text-xs font-bold text-slate-700 hover:text-violet-600 transition-colors">
+              <Link href="/dashboard" className="text-xs font-bold text-black hover:text-violet-600 transition-colors border-b-2 border-transparent hover:border-violet-600">
                 Espace
               </Link>
             </SignedIn>
@@ -69,87 +36,67 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero compact */}
-      <section className="max-w-md mx-auto px-4 pt-6 pb-4">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm border-2 border-violet-300 rounded-full text-violet-700 text-xs font-black mb-3 shadow-lg shadow-violet-500/20">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+      {/* Hero */}
+      <section className="max-w-md mx-auto px-4 pt-8 pb-6">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-100 border-2 border-rose-400 rounded-lg text-rose-800 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            <Sparkles className="w-3.5 h-3.5" />
             NOUVEAU : MODE COMÉRAGE
           </div>
           
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-2">
-            Décrypte{" "}
-            <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              les gens
-            </span>
+          <h1 className="text-4xl font-black text-black leading-[1.1] tracking-tight">
+            Décrypte les gens
             <br />
-            <span className="text-xl font-bold text-slate-600">en 30 secondes</span>
+            <span className="text-2xl font-bold text-slate-600 mt-2 block">en 30 secondes.</span>
           </h1>
           
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 border border-emerald-300 rounded-full text-emerald-800 text-[10px] font-bold">
-            <Lock className="w-3 h-3" />
-            100% ANONYME
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100 border-2 border-emerald-400 rounded-lg text-emerald-800 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            <Lock className="w-3.5 h-3.5" />
+            100% ANONYME ET PRIVÉ
           </div>
         </div>
       </section>
 
-      {/* Comment ça marche - AVANT les contextes */}
-      <section className="max-w-md mx-auto px-4 mb-4">
-        <div className="bg-gradient-to-br from-violet-500 via-purple-500 to-pink-500 rounded-3xl p-5 shadow-2xl shadow-violet-500/30">
-          <h2 className="text-lg font-black text-white mb-4">Comment ça marche</h2>
-          
-          <div className="space-y-2.5">
-            {[
-              { num: "1", title: "Choisis", desc: "Ton contexte" },
-              { num: "2", title: "Raconte", desc: "Une scène précise" },
-              { num: "3", title: "Décrypte", desc: "En 30 secondes" }
-            ].map((step, i) => (
-              <div key={i} className="flex gap-3 items-center bg-white/10 backdrop-blur-sm rounded-2xl p-3">
-                <div className="flex-shrink-0 w-9 h-9 bg-white rounded-xl flex items-center justify-center text-violet-600 font-black text-sm shadow-lg">
-                  {step.num}
-                </div>
-                <div className="flex-1 text-white">
-                  <h3 className="text-sm font-black">{step.title}</h3>
-                  <p className="text-xs opacity-90">{step.desc}</p>
-                </div>
+      {/* Comment ça marche */}
+      <section className="max-w-md mx-auto px-4 mb-8">
+        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Comment ça marche</h2>
+        <div className="space-y-3">
+          {[
+            { num: "1", title: "Choisis", desc: "Ton contexte", bg: "bg-rose-100", border: "border-rose-400" },
+            { num: "2", title: "Raconte", desc: "Une scène précise", bg: "bg-sky-100", border: "border-sky-400" },
+            { num: "3", title: "Décrypte", desc: "En 30 secondes", bg: "bg-emerald-100", border: "border-emerald-400" }
+          ].map((step, i) => (
+            <div key={i} className={`flex gap-4 items-center p-4 bg-white border-2 ${step.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]`}>
+              <div className={`w-10 h-10 ${step.bg} border-2 border-black rounded-lg flex items-center justify-center font-black text-lg`}>
+                {step.num}
               </div>
-            ))}
-          </div>
+              <div>
+                <h3 className="text-sm font-black text-black">{step.title}</h3>
+                <p className="text-xs font-medium text-slate-600">{step.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Grille de modes */}
-      <section className="max-w-md mx-auto px-4 mb-6">
-        <h2 className="text-xl font-black text-slate-900 mb-3">Choisis ton contexte</h2>
-
-        <div className="grid grid-cols-2 gap-3">
+      {/* Grille des modes */}
+      <section className="max-w-md mx-auto px-4 mb-8">
+        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Choisis ton contexte</h2>
+        <div className="grid grid-cols-2 gap-4">
           {CONTEXTS.map((context) => (
             <Link
               key={context.id}
               href={`/modes/${context.id}`}
-              className="group relative overflow-hidden rounded-2xl p-4 bg-white border-2 border-white hover:border-slate-200 shadow-lg hover:shadow-2xl transition-all duration-300 active:scale-95"
+              className={`group relative flex flex-col p-4 bg-white border-2 ${context.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-95`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${context.gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />
-              
-              <div className="relative">
-                <div className="text-5xl mb-2 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                  {context.icon}
+              {context.featured && (
+                <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-black text-white text-[10px] font-black rounded-md border-2 border-black rotate-3">
+                  HOT
                 </div>
-                
-                <h3 className={`text-base font-black bg-gradient-to-r ${context.gradient} bg-clip-text text-transparent mb-1`}>
-                  {context.label}
-                </h3>
-                
-                <p className="text-xs text-slate-600 font-medium leading-tight">
-                  {context.description}
-                </p>
-                
-                {context.featured && (
-                  <div className={`absolute top-0 right-0 px-2.5 py-1 bg-gradient-to-r ${context.gradient} text-white text-[10px] font-black rounded-bl-xl rounded-tr-xl shadow-lg`}>
-                    🔥 HOT
-                  </div>
-                )}
-              </div>
+              )}
+              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{context.icon}</div>
+              <h3 className={`text-base font-black ${context.text} mb-1`}>{context.label}</h3>
+              <p className="text-xs font-medium text-slate-600 leading-tight">Analyse rapide</p>
             </Link>
           ))}
         </div>
@@ -157,47 +104,38 @@ export default function HomePage() {
 
       {/* Témoignages */}
       <section className="max-w-md mx-auto px-4 mb-8">
-        <h2 className="text-xl font-black text-slate-900 mb-4">Ils adorent Klaro</h2>
-        
-        <div className="space-y-3">
+        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Ils adorent Klaro</h2>
+        <div className="space-y-4">
           {[
-            { name: "Léa", mode: "Comérage", text: "L'IA a vraiment capté les dynamiques. C'est drôle et direct !", color: "from-pink-400 to-rose-500" },
-            { name: "Marc", mode: "Pro", text: "Super pour comprendre mon boss. Analyses pertinentes.", color: "from-blue-400 to-indigo-500" },
-            { name: "Sophie", mode: "Famille", text: "M'a aidée à comprendre ma sœur. Je recommande !", color: "from-amber-400 to-orange-500" }
+            { name: "Léa", mode: "Comérage", text: "L'IA a vraiment capté les dynamiques. C'est drôle et direct !", color: "bg-rose-400" },
+            { name: "Marc", mode: "Pro", text: "Super pour comprendre mon boss. Analyses pertinentes.", color: "bg-sky-400" },
+            { name: "Sophie", mode: "Famille", text: "M'a aidée à comprendre ma sœur. Je recommande !", color: "bg-amber-400" }
           ].map((t, i) => (
-            <div key={i} className="p-4 bg-white/90 backdrop-blur-sm border-2 border-white rounded-2xl shadow-lg">
+            <div key={i} className="p-4 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               <div className="flex items-center gap-3 mb-2">
-                <div className={`w-10 h-10 bg-gradient-to-br ${t.color} rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg`}>
+                <div className={`w-10 h-10 ${t.color} border-2 border-black rounded-full flex items-center justify-center text-white font-black text-sm`}>
                   {t.name[0]}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-black text-slate-900">{t.name}</p>
-                  <p className="text-xs text-slate-500 font-medium">Mode {t.mode}</p>
+                  <p className="text-sm font-black text-black">{t.name}</p>
+                  <p className="text-xs font-medium text-slate-500">Mode {t.mode}</p>
                 </div>
-                <div className="flex text-amber-400 text-sm">★★★★★</div>
+                <div className="text-amber-400 text-sm">★★★★★</div>
               </div>
-              <p className="text-sm text-slate-700 leading-relaxed font-medium">"{t.text}"</p>
+              <p className="text-sm font-medium text-slate-700 italic">"{t.text}"</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="max-w-md mx-auto px-4 pt-6 pb-8 text-center">
+      <footer className="max-w-md mx-auto px-4 pt-6 pb-8 text-center border-t-2 border-black pt-8">
         <div className="inline-flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 bg-gradient-to-br from-violet-600 to-pink-600 rounded-lg flex items-center justify-center text-white font-black text-xs">
-            K
-          </div>
-          <span className="text-sm font-black bg-gradient-to-r from-violet-600 to-pink-600 bg-clip-text text-transparent">
-            Klaro
-          </span>
+          <div className="w-6 h-6 bg-black text-white rounded flex items-center justify-center font-black text-xs">K</div>
+          <span className="text-sm font-black text-black">Klaro</span>
         </div>
-        <p className="text-xs text-slate-600 font-medium mb-1">
-          Analyse comportementale non clinique
-        </p>
-        <p className="text-xs text-slate-500">
-          3 analyses gratuites • Premium 9,99€/mois
-        </p>
+        <p className="text-xs font-medium text-slate-600 mb-1">Analyse comportementale non clinique</p>
+        <p className="text-xs font-medium text-slate-500">3 analyses gratuites • Premium 9,99€/mois</p>
       </footer>
     </div>
   );
