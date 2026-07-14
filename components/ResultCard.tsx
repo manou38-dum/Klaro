@@ -287,19 +287,19 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
               {result.tensions && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.4s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">🔥 Tensions</h3>
-                  <p className="text-slate-700 text-sm">{formatContent}</p>
+                  <p className="text-slate-700 text-sm">{(formatContent)}</p>
                 </div>
               )}
               {result.alliances && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.5s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">🤝 Alliances</h3>
-                  <p className="text-slate-700 text-sm">{formatContent}</p>
+                  <p className="text-slate-700 text-sm">{(formatContent)}</p>
                 </div>
               )}
               {result.conseil && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.6s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">💡 Conseil</h3>
-                  <p className="text-slate-700 text-sm">{formatContent}</p>
+                  <p className="text-slate-700 text-sm">{(formatContent)}</p>
                 </div>
               )}
             </div>
