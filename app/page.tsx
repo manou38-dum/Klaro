@@ -3,7 +3,6 @@ import { Lock, Sparkles } from "lucide-react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 
 const CONTEXTS = [
-  { id: "comerage", label: "Comérage", icon: "☕", color: "bg-rose-100", border: "border-rose-400", text: "text-rose-700", featured: true },
   { id: "pro", label: "Pro", icon: "💼", color: "bg-sky-100", border: "border-sky-400", text: "text-sky-700" },
   { id: "familial", label: "Famille", icon: "🏠", color: "bg-amber-100", border: "border-amber-400", text: "text-amber-700" },
   { id: "ami", label: "Amis", icon: "🎉", color: "bg-emerald-100", border: "border-emerald-400", text: "text-emerald-700" },
@@ -12,8 +11,7 @@ const CONTEXTS = [
 
 export default function HomePage() {
   return (
-    // FOND CHAUD ET DOUX (Pastel crème/orange/rose)
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-rose-50 to-amber-50 pb-20 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-orange-100 via-rose-100 to-amber-100 pb-20 font-sans">
       
       {/* Header Compact */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-black/10">
@@ -41,7 +39,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="max-w-md mx-auto px-4 pt-8 pb-6">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-100 border-2 border-rose-400 rounded-lg text-rose-800 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-rose-200 border-2 border-rose-500 rounded-lg text-rose-900 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
             <Sparkles className="w-3.5 h-3.5" />
             NOUVEAU : MODE COMÉRAGE
           </div>
@@ -52,16 +50,16 @@ export default function HomePage() {
             <span className="text-2xl font-bold text-slate-600 mt-2 block">en 30 secondes.</span>
           </h1>
           
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-100 border-2 border-emerald-400 rounded-lg text-emerald-800 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-200 border-2 border-emerald-500 rounded-lg text-emerald-900 text-xs font-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
             <Lock className="w-3.5 h-3.5" />
             100% ANONYME ET PRIVÉ
           </div>
         </div>
       </section>
 
-      {/* Comment ça marche : VERSION ULTRA COMPACTE (1 seul pavé) */}
+      {/* Comment ça marche : VERSION ULTRA COMPACTE */}
       <section className="max-w-md mx-auto px-4 mb-6">
-        <div className="p-4 bg-white border-2 border-amber-300 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center">
+        <div className="p-4 bg-white border-2 border-amber-400 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center">
           <p className="text-sm font-bold text-slate-800 leading-relaxed">
             ✍️ <span className="text-amber-700">Raconte</span> une scène en quelques lignes, 
             et notre IA <span className="text-rose-600">décrypte</span> les dynamiques instantanément.
@@ -69,23 +67,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Grille des modes */}
+      {/* COMÉRAGE EN VEDETTE (carte pleine largeur) */}
+      <section className="max-w-md mx-auto px-4 mb-4">
+        <Link
+          href="/modes/comerage"
+          className="group relative flex flex-col p-6 bg-gradient-to-br from-rose-100 to-pink-100 border-4 border-rose-500 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-95"
+        >
+          <div className="absolute -top-3 -right-3 px-3 py-1 bg-slate-900 text-white text-xs font-black rounded-lg border-2 border-black rotate-6 shadow-lg">
+            🔥 POPULAIRE
+          </div>
+          
+          <div className="flex items-start gap-4">
+            <div className="text-6xl group-hover:scale-110 transition-transform">☕</div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-black text-rose-700 mb-2">Comérage</h2>
+              <p className="text-sm font-medium text-slate-700 leading-relaxed">
+                Décrypte les ragots, les dynamiques de groupe et les jeux de pouvoir. Fun, direct et sans filtre !
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-rose-500 text-white font-black text-sm rounded-lg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all">
+            Commencer l'analyse →
+          </div>
+        </Link>
+      </section>
+
+      {/* LES 4 AUTRES MODES (grille 2x2 plus petite) */}
       <section className="max-w-md mx-auto px-4 mb-8">
-        <h2 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-wide">Choisis ton contexte</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <h2 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-wide">Autres contextes</h2>
+        <div className="grid grid-cols-2 gap-3">
           {CONTEXTS.map((context) => (
             <Link
               key={context.id}
               href={`/modes/${context.id}`}
-              className={`group relative flex flex-col p-4 bg-white border-2 ${context.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-95`}
+              className={`group relative flex flex-col p-3 bg-white border-2 ${context.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-95`}
             >
-              {context.featured && (
-                <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-black rounded-md border-2 border-black rotate-3">
-                  HOT
-                </div>
-              )}
-              <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">{context.icon}</div>
-              <h3 className={`text-base font-black ${context.text} mb-1`}>{context.label}</h3>
+              <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{context.icon}</div>
+              <h3 className={`text-sm font-black ${context.text} mb-1`}>{context.label}</h3>
               <p className="text-xs font-medium text-slate-600 leading-tight">Analyse rapide</p>
             </Link>
           ))}
