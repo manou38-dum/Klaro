@@ -26,7 +26,7 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <SignedIn>
               <Link href="/dashboard" className="text-xs font-bold text-slate-700 hover:text-rose-600 transition-colors">
-                Espace
+                Mon compte
               </Link>
             </SignedIn>
             <SignedIn>
