@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
     const body = await request.json();
-    const { scene, context, cardId, degree = 3 } = body;
+    const { scene, context, cardId, degree = 3, intensity = "epice" } = body;
 
     const minLength = degree <= 2 ? 20 : 80;
 
@@ -19,15 +19,12 @@ export async function POST(request: NextRequest) {
 
     const mode = context || "pro";
 
-    // Récupérer les infos de la carte si cardId est fourni
     let cardPrenom = body.prenom;
     let cardEmoji = body.emoji;
 
     if (cardId) {
       try {
-        const card = await prisma.card.findUnique({
-          where: { id: cardId }
-        });
+        const card = await prisma.card.findUnique({ where: { id: cardId } });
         if (card) {
           cardPrenom = card.prenom || cardPrenom;
           cardEmoji = card.emoji || cardEmoji;
@@ -37,15 +34,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log("📊 Analyse reçue:", { 
-      scene: scene?.substring(0, 50) + "...", 
-      context: mode, 
-      degree,
-      length: scene?.length 
-    });
+    console.log("📊 Analyse reçue:", { scene: scene?.substring(0, 50) + "...", context: mode, degree, intensity });
 
-    console.log("🚀 Appel Mistral avec degree:", degree);
-    const result = await analyzeSituation(scene, mode, cardPrenom, cardEmoji, degree);
+    // On passe l'intensité à la fonction Mistral
+    const result = await analyzeSituation(scene, mode, cardPrenom, cardEmoji, degree, intensity);
 
     if (result.error) {
       console.error("❌ Erreur Mistral:", result.error);
@@ -53,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log("✅ Analyse réussie!");
-    return NextResponse.json({ ...result, degree });
+    return NextResponse.json({ ...result, degree, mode });
 
   } catch (error) {
     console.error("💥 Erreur API analyze:", error);
