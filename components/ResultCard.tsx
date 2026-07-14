@@ -41,6 +41,13 @@ const MODE_CONFIG: Record<string, any> = {
 function cleanMarkdown(text: string): string {
   return text.replace(/\*\*/g, "").replace(/\*/g, "").replace(/_/g, "");
 }
+// Fonction de sécurité pour éviter les [object Object]
+function formatContent(content: any): string {
+  if (!content) return "";
+  if (typeof content === "string") return cleanMarkdown(content);
+  if (Array.isArray(content)) return content.map(cleanMarkdown).join(" • ");
+  return cleanMarkdown(String(content));
+}
 
 // Composant Confettis
 function Confetti() {
@@ -274,19 +281,19 @@ export default function ResultCard({ result, mode, isVisible }: { result: any; m
               {result.tensions && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.4s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">🔥 Tensions</h3>
-                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.tensions))}</p>
+                  <p className="text-slate-700 text-sm">{formatContent}</p>
                 </div>
               )}
               {result.alliances && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.5s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">🤝 Alliances</h3>
-                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.alliances))}</p>
+                  <p className="text-slate-700 text-sm">{formatContent}</p>
                 </div>
               )}
               {result.conseil && (
                 <div className="animate-slide-up" style={{ animationDelay: "1.6s" }}>
                   <h3 className="font-bold text-violet-700 mb-2">💡 Conseil</h3>
-                  <p className="text-slate-700 text-sm">{cleanMarkdown(String(result.conseil))}</p>
+                  <p className="text-slate-700 text-sm">{formatContent}</p>
                 </div>
               )}
             </div>

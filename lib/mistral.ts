@@ -27,41 +27,36 @@ export async function analyzeSituation(
     // ==========================================
     // MODE COMÉRAGE AVEC NIVEAUX D'INTENSITÉ
     // ==========================================
-    if (mode === "comerage") {
+        if (mode === "comerage") {
+      const baseRule = "RÈGLE D'OR ABSOLUE : Ne confonds JAMAIS l'orateur (celui qui raconte la scène) avec les personnages. L'orateur est l'observateur extérieur. Analyse les personnages, pas l'orateur. ";
+      
+      let specificTone = "";
       if (intensity === "light") {
-        systemPrompt = "Tu es une amie bienveillante et douce qui écoute les ragots. Ton : empathique, constructif, tu cherches le positif et la compréhension mutuelle. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-        userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
-RÈGLES : Identifie le genre de CHAQUE personne. Utilise "il" ou "elle".
-Réponds UNIQUEMENT ce JSON :
-{"insight_principal":"Phrase douce et constructive","confiance_globale":90,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Analyse bienveillante avec le bon pronom"}],"jeux_de_pouvoir":["Malentendu à éclaircir"],"non_dits":["Émotion cachée positive"],"alliances":"Liens forts","tensions":"Petits frottements à apaiser","conseil":"Conseil doux pour harmoniser le groupe"}`;
-      } 
-      else if (intensity === "epice") {
-        systemPrompt = "Tu es une pote franche et lucide qui décrypte les ragots. Ton : direct, sans détour, un peu taquin mais respectueux. Tu dis les vraies vérités sans méchanceté. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-        userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
-RÈGLES : Identifie le genre de CHAQUE personne. Utilise "il" ou "elle".
-Réponds UNIQUEMENT ce JSON :
-{"insight_principal":"Phrase choc lucide","confiance_globale":90,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Analyse franche avec le bon pronom"}],"jeux_de_pouvoir":["Jeu de pouvoir clair"],"non_dits":["Ce que personne n'ose dire"],"alliances":"Qui est avec qui","tensions":"Frottements réels","conseil":"Conseil de pote franc et utile"}`;
-      } 
-      else if (intensity === "caliente") {
-        systemPrompt = "Tu es une commère cash, sans filtre et un peu moqueuse. Ton : incisif, drôle, tu démontes les faux-semblants avec humour noir. Tu es la pote qui dit tout haut ce que les autres pensent tout bas. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-        userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
-RÈGLES : Identifie le genre de CHAQUE personne. Utilise "il" ou "elle". Sois cash.
-Réponds UNIQUEMENT ce JSON :
-{"insight_principal":"Vérité qui pique mais fait du bien","confiance_globale":95,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Analyse cinglante et drôle avec le bon pronom"}],"jeux_de_pouvoir":["Manipulation ou ego surdimensionné"],"non_dits":["Hypocrisie flagrante"],"alliances":"Alliances de convenance","tensions":"Guerre froide ou clash imminent","conseil":"Conseil cinglant pour ne pas se faire avoir"}`;
-      } 
-      else { // defouloir
-        systemPrompt = "Tu es une commère impitoyable, déchaînée et ultra-directe. Ton : cruellement lucide, sarcastique, langage percutant et dramatique. Tu détruis les ego et les excuses. Aucune retenue, c'est le mode 'vérité qui fait mal mais qui libère'. Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.";
-        userPrompt = `Analyse cette scène de groupe : ${scene.substring(0, 500)}
-RÈGLES : Identifie le genre de CHAQUE personne. Utilise "il" ou "elle". Sois impitoyable.
-Réponds UNIQUEMENT ce JSON :
-{"insight_principal":"La vérité brutale et sans appel","confiance_globale":99,"personne":{"prenom":"La bande","emoji":"☕"},"dynamiques":[{"acteur":"Prénom","genre":"homme/femme","role":"Role","analyse":"Démontage en règle avec le bon pronom"}],"jeux_de_pouvoir":["Domination toxique ou manipulation perverse"],"non_dits":["Secret inavouable ou jalousie maladive"],"alliances":"Trahisons et coups bas","tensions":"Champ de mines relationnel","conseil":"Conseil radical pour survivre à ce groupe"}`;
+        specificTone = "Ton : empathique, constructif, tu cherches le positif. ";
+      } else if (intensity === "epice") {
+        specificTone = "Ton : direct, lucide, un peu taquin mais respectueux. ";
+      } else if (intensity === "caliente") {
+        specificTone = "Ton : cash, sans filtre, moqueur, tu démontes les faux-semblants avec humour noir. ";
+      } else { // defouloir
+        specificTone = "Ton : impitoyable, déchaîné, sarcastique, langage percutant et dramatique. Tu détruis les ego. C'est la vérité qui fait mal mais qui libère. ";
       }
+
+      systemPrompt = `Tu es un expert en dynamiques de groupe et ragots. ${baseRule}${specificTone}Réponds UNIQUEMENT en JSON valide. Commence par { et finis par }.`;
+      
+      userPrompt = `Analyse cette scène : ${scene.substring(0, 800)}
+RÈGLES JSON STRICTES : 
+- "prenom" doit être le NOM DU PERSONNAGE CENTRAL de la scène (ex: "Sarah", "Le Boss", "Marc"), JAMAIS "La bande" ou "Inconnu" sauf si vraiment aucun nom n'est donné.
+- "tensions", "non_dits", "jeux_de_pouvoir" doivent être des TABLEAUX de phrases courtes (ex: ["Phrase 1", "Phrase 2"]).
+- "alliances" et "conseil" doivent être des CHAÎNES DE CARACTÈRES (texte simple).
+
+Réponds UNIQUEMENT ce JSON :
+{"insight_principal":"Phrase choc résumant la scène","confiance_globale":90,"personne":{"prenom":"Nom du personnage central","emoji":"☕"},"dynamiques":[{"acteur":"Nom du personnage","genre":"homme/femme","role":"Son rôle","analyse":"Analyse de son comportement"}],"jeux_de_pouvoir":["Jeu 1","Jeu 2"],"non_dits":["Non-dit 1","Non-dit 2"],"alliances":"Description textuelle des alliances","tensions":["Tension 1","Tension 2"],"conseil":"Conseil textuel direct et actionnable"}`;
 
       try {
         const response = await client.chat.complete({
           model: "mistral-large-latest",
           messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-          temperature: 0.8, maxTokens: 2000 // Temperature légèrement augmentée pour plus de créativité dans les tons
+          temperature: 0.8, maxTokens: 2000
         });
         const rawContent = response.choices?.[0]?.message?.content;
         if (!rawContent) return { error: "Pas de réponse" };
@@ -77,7 +72,7 @@ Réponds UNIQUEMENT ce JSON :
         return { error: "Erreur lors de l'analyse" };
       }
     }
-
+    
     // ==========================================
     // AUTRES MODES (Pro, Familial, Ami, Social)
     // ==========================================
