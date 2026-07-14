@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock, Sparkles, ArrowRight } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
 
 const CONTEXTS = [
@@ -12,20 +12,22 @@ const CONTEXTS = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] pb-20 font-sans">
+    // FOND CHAUD ET DOUX (Pastel crème/orange/rose)
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-rose-50 to-amber-50 pb-20 font-sans">
+      
       {/* Header Compact */}
-      <header className="sticky top-0 z-50 bg-[#FAFAFA]/90 backdrop-blur-md border-b-2 border-black">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b-2 border-black/10">
         <div className="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-black text-white rounded-lg flex items-center justify-center font-black text-lg border-2 border-black shadow-[3px_3px_0px_0px_rgba(139,92,246,1)]">
+            <div className="w-9 h-9 bg-gradient-to-br from-rose-500 to-orange-500 text-white rounded-lg flex items-center justify-center font-black text-lg border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
               K
             </div>
-            <span className="text-xl font-black text-black tracking-tight">Klaro</span>
+            <span className="text-xl font-black text-slate-900 tracking-tight">Klaro</span>
           </Link>
           
           <div className="flex items-center gap-3">
             <SignedIn>
-              <Link href="/dashboard" className="text-xs font-bold text-black hover:text-violet-600 transition-colors border-b-2 border-transparent hover:border-violet-600">
+              <Link href="/dashboard" className="text-xs font-bold text-slate-700 hover:text-rose-600 transition-colors">
                 Espace
               </Link>
             </SignedIn>
@@ -44,7 +46,7 @@ export default function HomePage() {
             NOUVEAU : MODE COMÉRAGE
           </div>
           
-          <h1 className="text-4xl font-black text-black leading-[1.1] tracking-tight">
+          <h1 className="text-4xl font-black text-slate-900 leading-[1.1] tracking-tight">
             Décrypte les gens
             <br />
             <span className="text-2xl font-bold text-slate-600 mt-2 block">en 30 secondes.</span>
@@ -57,31 +59,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Comment ça marche */}
-      <section className="max-w-md mx-auto px-4 mb-8">
-        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Comment ça marche</h2>
-        <div className="space-y-3">
-          {[
-            { num: "1", title: "Choisis", desc: "Ton contexte", bg: "bg-rose-100", border: "border-rose-400" },
-            { num: "2", title: "Raconte", desc: "Une scène précise", bg: "bg-sky-100", border: "border-sky-400" },
-            { num: "3", title: "Décrypte", desc: "En 30 secondes", bg: "bg-emerald-100", border: "border-emerald-400" }
-          ].map((step, i) => (
-            <div key={i} className={`flex gap-4 items-center p-4 bg-white border-2 ${step.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]`}>
-              <div className={`w-10 h-10 ${step.bg} border-2 border-black rounded-lg flex items-center justify-center font-black text-lg`}>
-                {step.num}
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-black">{step.title}</h3>
-                <p className="text-xs font-medium text-slate-600">{step.desc}</p>
-              </div>
-            </div>
-          ))}
+      {/* Comment ça marche : VERSION ULTRA COMPACTE (1 seul pavé) */}
+      <section className="max-w-md mx-auto px-4 mb-6">
+        <div className="p-4 bg-white border-2 border-amber-300 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center">
+          <p className="text-sm font-bold text-slate-800 leading-relaxed">
+            ✍️ <span className="text-amber-700">Raconte</span> une scène en quelques lignes, 
+            et notre IA <span className="text-rose-600">décrypte</span> les dynamiques instantanément.
+          </p>
         </div>
       </section>
 
       {/* Grille des modes */}
       <section className="max-w-md mx-auto px-4 mb-8">
-        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Choisis ton contexte</h2>
+        <h2 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-wide">Choisis ton contexte</h2>
         <div className="grid grid-cols-2 gap-4">
           {CONTEXTS.map((context) => (
             <Link
@@ -90,7 +80,7 @@ export default function HomePage() {
               className={`group relative flex flex-col p-4 bg-white border-2 ${context.border} rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-95`}
             >
               {context.featured && (
-                <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-black text-white text-[10px] font-black rounded-md border-2 border-black rotate-3">
+                <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-slate-900 text-white text-[10px] font-black rounded-md border-2 border-black rotate-3">
                   HOT
                 </div>
               )}
@@ -104,20 +94,20 @@ export default function HomePage() {
 
       {/* Témoignages */}
       <section className="max-w-md mx-auto px-4 mb-8">
-        <h2 className="text-lg font-black text-black mb-4 uppercase tracking-wide">Ils adorent Klaro</h2>
+        <h2 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-wide">Ils adorent Klaro</h2>
         <div className="space-y-4">
           {[
             { name: "Léa", mode: "Comérage", text: "L'IA a vraiment capté les dynamiques. C'est drôle et direct !", color: "bg-rose-400" },
             { name: "Marc", mode: "Pro", text: "Super pour comprendre mon boss. Analyses pertinentes.", color: "bg-sky-400" },
             { name: "Sophie", mode: "Famille", text: "M'a aidée à comprendre ma sœur. Je recommande !", color: "bg-amber-400" }
           ].map((t, i) => (
-            <div key={i} className="p-4 bg-white border-2 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <div key={i} className="p-4 bg-white border-2 border-black/10 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
               <div className="flex items-center gap-3 mb-2">
-                <div className={`w-10 h-10 ${t.color} border-2 border-black rounded-full flex items-center justify-center text-white font-black text-sm`}>
+                <div className={`w-10 h-10 ${t.color} border-2 border-black rounded-full flex items-center justify-center text-white font-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
                   {t.name[0]}
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-black text-black">{t.name}</p>
+                  <p className="text-sm font-black text-slate-900">{t.name}</p>
                   <p className="text-xs font-medium text-slate-500">Mode {t.mode}</p>
                 </div>
                 <div className="text-amber-400 text-sm">★★★★★</div>
@@ -129,10 +119,10 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="max-w-md mx-auto px-4 pt-6 pb-8 text-center border-t-2 border-black pt-8">
+      <footer className="max-w-md mx-auto px-4 pt-6 pb-8 text-center border-t-2 border-black/10">
         <div className="inline-flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 bg-black text-white rounded flex items-center justify-center font-black text-xs">K</div>
-          <span className="text-sm font-black text-black">Klaro</span>
+          <div className="w-6 h-6 bg-slate-900 text-white rounded flex items-center justify-center font-black text-xs">K</div>
+          <span className="text-sm font-black text-slate-900">Klaro</span>
         </div>
         <p className="text-xs font-medium text-slate-600 mb-1">Analyse comportementale non clinique</p>
         <p className="text-xs font-medium text-slate-500">3 analyses gratuites • Premium 9,99€/mois</p>
